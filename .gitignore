@@ -1,3 +1,6 @@
+# Build files
+mcu_ws/build
+
 # Prerequisites
 *.d
 
@@ -53,3 +56,6 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+
+
