@@ -2,7 +2,7 @@
 ## Equipe
 - Barthere Aurelien E3
 - Bromet Alexandre E3
-- Daragnes Le"ia I3
+- Daragnes Leïa I3
 - Guigui Marceau E3
 - Halimi Zakaria E3
 - Louvel Elise E3
@@ -16,11 +16,6 @@
 
 #### Refus
 - 
-
-## Rôles 
-*Scrum Master* -> Bastien  
-*Respo Base Méca* -> Aurelien  
-*Respo*
 
 ## Esthétique du robot
 Un robot au couleurs du Ara bleu. Des dimensions modestes (carré de 25 cm), deux espaces distincts en bas et en haut. Une tour excentrée pour relier ces deux espaces. Les actionneurs comblent le reste.  
