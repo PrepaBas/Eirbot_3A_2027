@@ -1,0 +1,7 @@
+[submodule "ros2_ws/src/micro_ros_setup"]
+	path = ros2_ws/src/micro_ros_setup
+	url = git@github.com:micro-ROS/micro_ros_setup.git
+
+[submodule "micro_ros_stm32cubemx_utils"]
+	path = mcu_ws/micro_ros_stm32cubemx_utils
+	url = git@github.com:micro-ROS/micro_ros_stm32cubemx_utils.git
