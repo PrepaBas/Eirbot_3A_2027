@@ -1,0 +1,113 @@
+set shell := ["bash", "-c"]
+
+help:
+  @just --list
+
+build:
+    cd ~/ros2_ws 
+    colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY
+
+sdd:
+    docker run -d \
+    --net=host \
+    -v $(pwd):/home/ros/ros2_ws \
+    --name my_ros_container \
+    --user ros \
+    --env="DISPLAY" \
+    --env="QT_X11_NO_MITSHM=1" \
+    -v /dev:/dev  \
+    --privileged \
+    --ulimit rtprio=99 \
+    --ulimit memlock=-1 \
+    --cap-add=SYS_NICE \
+    ros2_container sleep infinity
+
+sd:
+    docker run -it \
+    --net=host \
+    -v ~/Documents/Eirbot_3A_2027/ros2_ws/:/home/ros/ros2_ws \
+    --name my_ros_container \
+    --user ros \
+    --env="DISPLAY" \
+    --env="QT_X11_NO_MITSHM=1" \
+    -v /dev:/dev  \
+    --privileged \
+    --ulimit rtprio=99 \
+    --ulimit memlock=-1 \
+    --cap-add=SYS_NICE \
+    ros2_container
+
+nd:
+    docker exec -it my_ros_container /bin/bash \
+
+bd:
+    docker build -t ros2_container .
+
+bdm:
+  docker buildx build --platform linux/arm64 \
+  -t ros2_container:latest \
+  --output type=docker,dest=image_robot.tar .
+
+rosdep:
+    sudo rosdep update \
+    rosdep install --from-paths src --ignore-src -y
+
+rmd:
+    docker rm my_ros_container
+
+screen:
+    xhost +local:root
+
+basem:
+lk:
+    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/diffbot_base_controller/cmd_vel_unstamped -p use_sim_time:=true
+
+lura:
+    sudo docker run --rm -it --network=host --device=/dev/ttyACM0 microros/micro-ros-agent:humble serial --dev /dev/ttyACM0 -b 460800D
+
+
+ssh:
+    ssh natch@raspberrypi.local
+
+rosdeps:
+    cd ~/ros2_ws
+    sudo apt update && rosdep update
+    rosdep install --from-paths src --ignore-src -r -y
+
+agent:
+    ros2 run micro_ros_setup create_agent_ws.sh
+    ros2 run micro_ros_setup build_agent.sh
+
+s:    
+    source ~/ros2_ws/install/setup.bash
+
+
+# Simuler le bouton RESET - Côté BLEU
+reset-blue:
+    ros2 topic pub --once --qos-durability transient_local /hardware/switches std_msgs/msg/Int8MultiArray "{data: [0, 1, 1]}"
+
+# Simuler le bouton RESET - Côté ORANGE
+reset-orange:
+    ros2 topic pub --once --qos-durability transient_local /hardware/switches std_msgs/msg/Int8MultiArray "{data: [1, 1, 1]}"
+
+# Simuler l'état IDLE (Bouton relâché, tirette présente) - Côté BLEU
+idle:
+    ros2 topic pub --once --qos-durability transient_local /hardware/switches std_msgs/msg/Int8MultiArray "{data: [0, 0, 1]}"
+
+# Simuler le START (Tirette retirée) - Côté BLEU
+start-blue:
+    ros2 topic pub --once --qos-durability transient_local /hardware/switches std_msgs/msg/Int8MultiArray "{data: [0, 0, 0]}"
+
+# Simuler le START (Tirette retirée) - Côté ORANGE
+start-orange:
+    ros2 topic pub --once --qos-durability transient_local /hardware/switches std_msgs/msg/Int8MultiArray "{data: [1, 0, 0]}"
+
+lidar:
+    ros2 launch sllidar_ros2 sllidar_a1_launch.py serial_port:=/dev/ttyAMA0 scan_mode:=Boost serial_baudrate:=115200
+
+chmod:
+    sudo chmod 666 /dev/ttyUSB0
+
+add_user_docker:
+    sudo usermod -aG docker $USER 
+    newgrp docker
