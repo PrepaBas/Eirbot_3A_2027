@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot name="eurobot_table" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <link name="map"/>
+
+  <joint name="map_to_table_joint" type="fixed">
+    <parent link="map"/>
+    <child link="table_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="table_link">
+    <visual>
+      <origin xyz="0 0 -0.005" rpy="0 0 0"/>
+      <geometry>
+        <box size="3.0 2.0 0.01"/>
+      </geometry>
+      <material name="table_texture">
+        <texture filename="package://mon_paquet_description/my_image.png"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.005" rpy="0 0 0"/>
+      <geometry>
+        <box size="3.0 2.0 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+</robot>
