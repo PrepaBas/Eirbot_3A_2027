@@ -108,3 +108,153 @@ Un lidar si on veut branché sur la rasp et qui permet de faire de l'évitement 
 Des tof branchés au MCU pour la défense de poing.
 
 Dans le meilleur des mondes des zones (devant près, devant loin, droite près ...) pour éviter de tourner avec les actionneurs déployés.
+
+
+## Répartition des tâches
+Le robot contient deux centres de calculs principaux : le microcontroleur et le microprocesseur.  
+> **Le processeur** gère la stratégie haut niveau, la connectivité réseau et l'aquisition et traitement lidar.
+
+> **Le controlleur** gère le controle moteur, l'estimation de position à partir de [encodeuse, centrale inertielle, position absolue résultant du traitement lidar].
+
+Pourquoi? Le controlleur doit gérer le controle moteur le plus précisement possible, et à donc besoin de faire ses calculs en temps réel le plus possible. Le processeur est utile surtout pour la connectivité et sa puissance de calcule au détriment du temps réel. Pour cela ce dernier est réserver à la strat et traitement lidar qui sont respectivement peu critique et lourd en calculs.  
+Eventuellement le controlleur peut avoir des élements de détection rapprochés type tof pour une sécurité supplémentaire, et le processeur un algorithme de path planning pour générer des trajectoires courbes.
+
+```Mermaid
+C4Component
+    title Diagramme C4 - Architecture Microcontrôleur & Raspberry Pi
+
+    System_Boundary(main_robot, "Robot Principal", "Gros robot", "rien") {
+
+        Component_Ext(mag_sens, "As5047p", "Capteur", "Capteur magnétique angle absolue")
+        Component_Ext(imu_sens, "ICM42688", "Capteur", "Acceleromètre et gyroscope")
+        Component_Ext(lidar, "RPLidar C1", "Capteur", "LIDAR")
+
+        Container_Boundary(mcu, "Microcontrôleur STM32 (Micro-ROS)") {
+            Component(t_as5047p, "Encoder-mode Timers", "Hardware", "Aqueri les signaux AB des encodeurs")
+            Component(t_imu, "IMU DMA and accumulation", "Hardware / RTOS Task", "Aqueri les données inertielles")
+            Component(t_mot, "Tâche Moteur", "RTOS Timer", "Calcule la vitesse des moteurs (~100Hz)")
+            Component(t_sens, "Kalman Filter", "Function", "Lit les données des capteurs physiques")
+        }
+        Container_Boundary(rpi, "Raspberry Pi (ROS2) ") {
+            Component(t_lidar, "sllidar", "Ros2 Node", "Interface le RPLidar-C1 avec Ros2")
+            Component(t_obj_det, "Object Detection", "Ros2 Node", "Extrait des formes depuis les données LIDAR")
+            Component(t_trig, "Triangulation Balises", "Custom Ros2 Node", "Extrait une position absolue des objets détectés par le LIDAR")
+            Component(t_adv_det, "Triangulation Adversaire", "Custom Ros2 Node", "Extrait une position absolue de l'adversaire")
+        }
+        Container_Boundary(mot, "Bloc Moteur") {
+        Component_Ext(esc, "Bg431ESC", "Controlleur de viteses", "Contrôle les moteurs FOC (~20kHz)")
+        Component_Ext(mag_sens_esc, "As5047p", "Capteur magnétique", "Angle absolue des roues")
+        }
+    }    
+
+
+    %% Communications internes RPi
+    Rel(t_lidar, t_obj_det, "Scan")
+    Rel_L(t_obj_det, t_trig, "obj")
+    Rel_R(t_obj_det, t_adv_det, "obj")
+    
+    %% Communication internes MCU
+    Rel_D(t_sens, t_mot, "pose")
+    Rel_D(t_imu, t_sens, "pose")
+    Rel_D(t_as5047p, t_sens, "pose")
+
+    %% Communications Rasp - MCU
+    Rel_L(t_trig, t_sens, "lidar pose")
+
+
+    %% Communication internes ESC
+    Rel(mag_sens_esc, esc, "SPI : angle absolu")
+
+    %% Communication Robot - MCU
+    Rel(t_mot, esc, "CAN : vitesse des roues")
+    Rel(mag_sens, t_as5047p, "Signaux AB")
+    Rel(imu_sens, t_imu, "SPI")
+
+    %% Communication Robot - Rasp
+    Rel(lidar, t_lidar, "câble USB")
+
+```
+
+``` Mermaid
+graph TD
+    %% Node Styles
+    classDef selector fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef sequence fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef condition fill:#ff9,stroke:#333,stroke-width:1px;
+    classDef action fill:#9f9,stroke:#333,stroke-width:1px;
+
+    %% --- LEGEND ---
+    subgraph Legend ["Tree Legend"]
+        direction LR
+        L1{?}:::selector === L1_T["Selector (Runs until a child SUCCEEDS)"]
+        L2[➔]:::sequence === L2_T["Sequence (Runs until a child FAILS)"]
+        L3([Condition]):::condition === L3_T["Check / State Test"]
+        L4[[Action]]:::action === L4_T["Execution / Behavior"]
+    end
+
+    %% --- BEHAVIOR TREE ---
+    Root((Root)) --> Selector1{?}:::selector
+    
+    %% Fallback 1: Attack Branch
+    Selector1 --> Sequence1[➔ Sequence: Fight]:::sequence
+    Sequence1 --> Cond1([Is Enemy Close?]):::condition
+    Sequence1 --> Act1[[Attack Enemy]]:::action
+    
+    %% Fallback 2: Patrol Branch
+    Selector1 --> Sequence2[➔ Sequence: Patrol]:::sequence
+    Sequence2 --> Cond2([Is Energy High?]):::condition
+    Sequence2 --> Act2[[Move to Waypoint]]:::action
+    
+    %% Fallback 3: Rest Branch
+    Selector1 --> Act3[[Sleep/Recover]]:::action
+```
+
+
+### Lecture encodeueses `As5047p`
+Ce capteur magnétique peut lire l'angle d'un aimant placé devant lui. La lecture de l'angle peut se faire en SPI mais ici on préfère décoder les signaux en quadrature dit 'AB' que l'as5047p peut générer.  
+Le but est d'utiliser les timer STM32 en mode encoder : deux channels d'un timer peuvent faire l'aquisition des signaux AB générés par l'`as5047p`. Dans cubeMX il faut mettre les timer 2 et 5 car ce sont les plus performants et sont sur *32 bits*. Le `Combined Channels` doit être `Encoder Mode`, dans les paramètres en bas le `Encoder Mode` doit être sur TI1 et TI2 pour que la quadrature se fasse. Sur un compteur 32bits, le compteur peut aller jusqu'à 4 294 967 295 ce qui permet de faire (/4000) 1 million de tour de roue sans overflow.  
+L'underflow est par contre possible mais tout à fait utile en castant la valeur du compteur en signé `int32_t` dans le programme, ce qui permet d'avoir le compteur **centré en 0**.  
+Ainsi l'aquisition des encodeuses se fait sans interuption supplémentaire et ne prend donc pas de cycle de calcul :)  
+
+Avec la cinématique inverse, on retrouve la vitesse des roues encodeuses $\dot \omega_r$ et $\dot \omega_l$, et donc la vitesses $\dot x$ et $\dot y$ de la base, mais aussi sa vitesse angulaire $\dot \theta$  qui serviron à estimer la position du robot, dans un filtre Kalman par exemple.
+
+L'initialisation se fait avec la fonctin `
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);`. La lecture des tick mesurés par les timer se font avec la fonction via l'objet timer `TIM2->CNT`. Il ne manque plus qu'à faire la difference avec la précedente mesure et retrouver la distance parcourue par chaque roue encodeuse.
+
+### Lecture centrale inertielle `ICM42688`
+L'ICM42688 est un capteur d'acceleration et de rotation, donc de 6 valeurs (x, y, z pour chaque). Celà veut dire une lecture des registres en commande SPI de manière assez fréquente (>500Hz). Pour celà, la centrale génère une interuption via ses pin (le interrupt 1), et une lecture des registres peut ainsi suivre. Pour encore moins d'utilisation des cycles, il est possible d'utiliser la lecture en Direct Memory Access (DMA) ce qui donne l'execution suivante : interuption levée -> Envoi de la commande et lecture des registres en DMA en background -> interruption du DMA pour signaler la fin de l'aquisition -> calcul léger pour intégrer les valeurs.  
+De manière moins fréquente, l'accumulation des valeurs peut être utilisée pour estimer l'état du robot dans un filtre Kalman par exemple.  
+
+Il faut donc :
+- **Un SPI** - ici le 2, le 1 étant restrint par le timer2. Préscaler de 16 pour rester en dessous de 24MHz, mots de 8 bits. PAS circular car on sait à l'avance combient d'octets on veut lire. Bien selectionner le `Request` et configurer le `Direction` en conséquence. Pour les deux channel faire en sorte que l'incrément d'adresse se fasse sur la ram et non pas sur l'IMU.
+- **Le pin CS** pour compléter le SPI (le mettre rapide).
+- **Un pin d'intéruption** qui est activé par l'IMU. Cette intéruption doit trigger un sémaphore/notification pour mettre CS bas et déclencher la transmission DMA dans une tâche.
+
+Une fonction d'envoi SPI consist à : 1.préparer le packet, 2.baisser le CS, 3.trasmettre avec `HAL_SPI_Transmit`, 4.remonter le CS.  
+ON utilise cette fonction pour configurer l'IMU.  
+
+Les intéruptions utilisent le système de notificatin (similaire au sémaphore) pour débloquer la tâche principale. Il faut juste donner la *handle* de la tâche (récupérée avec`xTaskGetCurrentTaskHandle()`) et utiliser les fonctions `ulTaskNotifyTake(pdTRUE, portMAX_DELAY)` et `TaskNotifyGiveFromISR(imu.notified_task_handle, &xHigherPriorityTaskWoken)`. A noter qu'on ajoute la fonction `portYIELD_FROM_ISR(xHigherPriorityTaskWoken)` dans l'intéruption pour être sur de changer de tâche rapidement.
+
+Le résultat des mesures peut être mis dans des variables globales ect mais de manière plus sécurisé on utilise les queue. On créé une queue et on récupère sa *handle* `imu_queue_handle = xQueueCreate(3, sizeof(imu_data_t))`, et à la fin du traitement on poste les données `xQueueSend(imu_queue_handle, &package, 0)`. Dans une autre tâche (kalman par exemple) on attend puis récupère les données `if (xQueueReceive(imu_queue_handle, &imu_packet, portMAX_DELAY) == pdPASS) {..}.`
+
+Le parsing est explicite à la seule exeption que l'acceleration est moyennée et le gyro est intégré (donc il faut savoir la période). Aussi, deux stratégies s'offrent : un update de l'IMU plus lent mais des données direct au Kalman ou bien update plus rapide, intégration et accumulation et envoi au Kalman en downsample.
+
+Le flow est donc de init puis à l'infini : interruption pin interrupt -(notify)> transmit dma -> dma interrupt -(notify)> parse et envoie dans queue
+
+### Le filtre de Kalman
+L'odométrie du robot peut se faire de plusieurs façons :
+- j'ai demandé telle et telle vitesse à mes roues, je peux donc savoir ou je vais être à l'instant suivant
+- Mes capteurs ont mesuré un déplacement de 3cm, je sais donc ou je me trouve à partir de ma position précédente
+- Mon lidar à permis de me trianguler en x- y-, c'est donc ici que je me trouve.
+
+Celà permet de faire la distinction entre trois type de donnée : **La prédiction** (le calcul à partir des info déjà aquises); **l'estimation relative** (à partir d'une donné précedente) et **l'estimation absolue** (indépendant de l'état précedent). 
+La prédiction est bien car elle permet à tout moment d'estimer l'état futur mais est sujette à la dérive car une commande ne se traduit jamais parfaitement dans la réalité. 
+L'estimation relative (dead reckoning) permet d'avoir une donnée supplémentaire en ajoutant un capteur qui va mesurer une donnée réelle. Cependant, même si il peut mieux traduire le comportement réel du robot il est toujours victime d'une dérive avec le temps. 
+L'estimation absolue en se fie pas du tout à l'état passé et trouve une position absolue pour le robot en se basant par exemple sur un lidar, gps, ect. Cette estimation ne dérive pas mais est souvent bruitée ou en retard ne la rendant pas viable pour un système rapide ou très précis.
+
+Pour utiliser les forces et faiblesses de toutes ces estimations, on va essayer de faire de la **fusion de capteur**. C'est à dire se fier tout le temps aux calculs mathématiques si notre modèle n'est pas trop mauvais, écouter les capteurs relatifs car ils reflètent mieux la réalité et enfin écouter les capteurs absolue pour éliminer la dérive. C'est l'objectif d'un filtre de Kalman.  
+Cependant le filtre ne fait pas une simple moyenne des capteurs. Il joue avec les incertitudes pour savoir si une donnée doit être prise en compte ou pas. Dans les faits on définit des matrices de bruit pour les maths (traduit un peu la réalité eg une table mal faite) et les capteurs. A chaque calcul mathématique, l'erreur est propagée (logique on est de moins en moins sur de où on est). A chaque donnée, le filtre Kalman va mathématique donner du poid ou non à la mesure suivant son bruit et le l'incertitude atteinte par le systeme, et l'intégrer à la position du robot. 
+Celà fait en sorte qu'une mesure bruitée ne pertube pas une position certaine et à l'inverse qu'une position incertaine soit complémentée par une mesure (même bruitée).
+
+Les données du robot sont contenues dans le vecteur d'êtat (à choisir) : $X = [x, y, \theta, v, \omega]$ avec respectivement la position x et y, l'angle du robot, sa vitesse linéaire et angulaire. Ces données correspondent à : la position du robot et les données des capteurs.
+CALCULS ( TODO )

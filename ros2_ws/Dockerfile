@@ -48,6 +48,8 @@ RUN apt update && apt install -y \
 RUN apt update && apt install -y \
     ros-humble-twist-mux \
     ros-humble-xacro \
+    ros-humble-joint-state-publisher \
+    ros-humble-joint-state-publisher-gui \
     ros-humble-robot-localization \
     && rm -rf /var/lib/apt/lists/*
 
@@ -76,10 +78,5 @@ COPY --chown=ros:ros src ./src
 
 
 RUN echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
-RUN echo '#!/usr/bin/env bash' > /ros_entrypoint.sh
-RUN echo 'source /opt/ros/humble/setup.bash' >> /ros_entrypoint.sh
-RUN echo 'exec "$@"' >> /ros_entrypoint.sh
-RUN chmod +x /ros_entrypoint.sh
 
-ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]

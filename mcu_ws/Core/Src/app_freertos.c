@@ -67,6 +67,13 @@ const osThreadAttr_t defaultTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 4000 * 4
 };
+/* Definitions for motorTask */
+osThreadId_t motorTaskHandle;
+const osThreadAttr_t motorTask_attributes = {
+  .name = "motorTask",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 512 * 4
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -111,6 +118,9 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+  /* creation of motorTask */
+  motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   led_TaskHandle = osThreadNew(ledTask, NULL, &led_Task_attributes);
@@ -189,6 +199,24 @@ void StartDefaultTask(void *argument)
       osDelay(10);
     }
   /* USER CODE END defaultTask */
+}
+
+/* USER CODE BEGIN Header_StartMotorTask */
+/**
+* @brief Function implementing the motorTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartMotorTask */
+void StartMotorTask(void *argument)
+{
+  /* USER CODE BEGIN motorTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END motorTask */
 }
 
 /* Private application code --------------------------------------------------*/
