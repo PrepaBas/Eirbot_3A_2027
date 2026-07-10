@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32H533 (FreeRTOS + micro-ROS)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/microros_base.elf",
+            
+            "configFiles": [
+                "interface/stlink-dap.cfg", // LE pilote obligatoire pour le H5
+                "${workspaceFolder}/openocd_h5/stm32h5x.cfg"
+            ],
+            
+            "device": "STM32H533RE",
+            "downloadConfig": "none", 
+            "rtos": "FreeRTOS",       // Activé pour voir tes threads de navigation !
+            
+            "gdbPath": "/usr/bin/gdb-multiarch",
+            "objdumpPath": "arm-none-eabi-objdump",
+            "nmPath": "arm-none-eabi-nm",
+            
+            "runToEntryPoint": "main",
+            "openOCDPreConfigLaunchCommands": [
+                "set CONNECT_UNDER_RESET 1"
+            ]
+        }
+    ]
+}

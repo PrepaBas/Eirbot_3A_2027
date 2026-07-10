@@ -31,6 +31,9 @@ OPT = -Og
 # Build path
 BUILD_DIR = build
 
+# Flash tool path
+ST_PROG_PATH = ~/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI
+
 ######################################
 # source
 ######################################
@@ -235,7 +238,7 @@ print_cflags:
 	@echo $(CFLAGS)
 
 flash: $(BUILD_DIR)/$(TARGET).bin
-	st-flash write $(BUILD_DIR)/$(TARGET).bin 0x08000000
+	$(ST_PROG_PATH) -c port=SWD mode=UR -d $(BUILD_DIR)/$(TARGET).bin 0x08000000 -v -rst
 	
 #######################################
 # clean up
