@@ -54,7 +54,7 @@ extern "C" {
 /* USER CODE BEGIN EM */
 
 /* USER CODE END EM */
-extern osThreadId_t defaultTaskHandle;
+extern osThreadId_t uRosTaskHandle;
 extern osThreadId_t motorTaskHandle;
 
 /* Exported function prototypes -----------------------------------------------*/
@@ -62,7 +62,7 @@ extern osThreadId_t motorTaskHandle;
 
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void *argument);
+void StartURosTask(void *argument);
 void StartMotorTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */

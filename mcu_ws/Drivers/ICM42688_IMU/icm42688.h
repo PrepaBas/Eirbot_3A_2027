@@ -1,7 +1,7 @@
 #ifndef ICM42688_H_
 #define ICM42688_H_
 
-#include "stm32f4xx_hal.h" // Change this to your specific series (e.g., hal_g4xx, hal_h7xx)
+#include "stm32h5xx_hal.h" // Change this to your specific series (e.g., hal_g4xx, hal_h7xx)
 #include "FreeRTOS.h"
 #include "task.h"
 

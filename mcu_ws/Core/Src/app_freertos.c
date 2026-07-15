@@ -22,9 +22,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+// Stm32 includes
 #include "stm32h5xx_hal_conf.h"
 #include "usart.h"
+#include "spi.h"
+#include "tim.h"
 
+// micro-ROS includes
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
@@ -34,6 +38,12 @@
 #include <rmw_microros/rmw_microros.h>
 
 #include <std_msgs/msg/int32.h>
+
+#include "arm_math.h"
+
+// Driver includes
+#include "icm42688.h"
+#include "kalman_filter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +53,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,10 +70,10 @@ const osThreadAttr_t led_Task_attributes = {
   .stack_size = 400 * 4
 };
 /* USER CODE END Variables */
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
+/* Definitions for uRosTask */
+osThreadId_t uRosTaskHandle;
+const osThreadAttr_t uRosTask_attributes = {
+  .name = "uRosTask",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 4000 * 4
 };
@@ -71,8 +81,8 @@ const osThreadAttr_t defaultTask_attributes = {
 osThreadId_t motorTaskHandle;
 const osThreadAttr_t motorTask_attributes = {
   .name = "motorTask",
-  .priority = (osPriority_t) osPriorityLow,
-  .stack_size = 512 * 4
+  .priority = (osPriority_t) osPriorityRealtime,
+  .stack_size = 1000 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -116,8 +126,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  /* creation of uRosTask */
+  uRosTaskHandle = osThreadNew(StartURosTask, NULL, &uRosTask_attributes);
 
   /* creation of motorTask */
   motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
@@ -131,19 +141,18 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_EVENTS */
 
 }
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_StartURosTask */
 /**
-* @brief Function implementing the defaultTask thread.
+* @brief Function implementing the uRosTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_StartURosTask */
+void StartURosTask(void *argument)
 {
-  /* USER CODE BEGIN defaultTask */
+  /* USER CODE BEGIN uRosTask */
   /* Infinite loop */
   // micro-ROS configuration
-
     rmw_uros_set_custom_transport(
       true,
       (void *) &huart2,
@@ -198,7 +207,7 @@ void StartDefaultTask(void *argument)
       msg.data++;
       osDelay(10);
     }
-  /* USER CODE END defaultTask */
+  /* USER CODE END uRosTask */
 }
 
 /* USER CODE BEGIN Header_StartMotorTask */
@@ -211,9 +220,93 @@ void StartDefaultTask(void *argument)
 void StartMotorTask(void *argument)
 {
   /* USER CODE BEGIN motorTask */
+
+  // IMU Initialization
+  icm42688_t imu;
+  icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
+
+  // Encoder Initialization
+  HAL_TIM_Encoder_Init(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
+  HAL_TIM_Encoder_Init(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
+
+  uint8_t enable_encoder = 1;
+  uint8_t enable_imu = 1;
+  int32_t encoder1_count = 0;
+  int32_t encoder2_count = 0;
+  float gz = 0.0f;
+  float vr = 0.0f;
+  float vl = 0.0f;
+
+  float x = 0.0f;
+  float y = 0.0f;
+  float theta = 0.0f;
+
+  // Kalman initialization
+  float X_f32[3] = {0, 0, 0};
+  arm_matrix_instance_f32 X;
+  arm_mat_init_f32(&X, 3, 1, X_f32);
+
+  float P_f32[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+  arm_matrix_instance_f32 P;
+  arm_mat_init_f32(&P, 3, 3, P_f32);
+
+  float F_f32[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+  arm_matrix_instance_f32 F;
+  arm_mat_init_f32(&F, 3, 3, F_f32);
+
+  float Q_f32[9] = {0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1};
+  arm_matrix_instance_f32 Q;
+  arm_mat_init_f32(&Q, 3, 3, Q_f32);
+
+  float Ft_f32[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  arm_matrix_instance_f32 Ft;
+  arm_mat_init_f32(&Ft, 3, 3, Ft_f32);
+  
+  float tmp_f32[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  arm_matrix_instance_f32 tmp;
+  arm_mat_init_f32(&tmp, 3, 3, tmp_f32);
+
+  kalman_workspace_t workspace = {
+      .x = X,
+      .F = F,
+      .P = P,
+      .Q = Q,
+      .Ft = Ft,
+      .tmp = tmp
+  };
+
   /* Infinite loop */
   for(;;)
   {
+
+    //* Read encoder counts *//
+    if(enable_encoder)
+    {
+        encoder1_count = (int32_t)__HAL_TIM_GET_COUNTER(&htim2); // read htim2->COUNT and cast into int32_t to have center value
+        encoder2_count = (int32_t)__HAL_TIM_GET_COUNTER(&htim5);
+    }
+
+    if(!enable_encoder && !enable_imu)
+    {
+        vr = 0.0f;
+        vl = 0.0f; // TODO get motor speed
+        continue;
+    }
+
+    if(enable_imu)
+    {
+        //* Read IMU data *//
+        if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by timer interrupt every 1ms
+        // Get sensor data
+        icm42688_start_dma_read(&imu); // start DMA read of IMU data. Interrupt will trigger when data is ready
+        if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by dma interrupt when IMU data is ready
+        //icm42688_parse_data(&imu);
+        int16_t raw_gz = (int16_t)((imu.rx_buf[11] << 8) | imu.rx_buf[12]);
+        // LSB sensitivity at ±2000dps full scale = 16.4 LSB/dps
+        gz = (float)raw_gz / 16.4f;
+    }
+
+
     osDelay(1);
   }
   /* USER CODE END motorTask */
@@ -229,5 +322,27 @@ void ledTask(void *argument)
     osDelay(200);
   }
 }
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == TIM6) 
+    {
+      // Notify motorTask that timer is elapsed
+      BaseType_t xHigherPriorityTaskWoken = pdFALSE;    
+      vTaskNotifyGiveFromISR(motorTaskHandle, &xHigherPriorityTaskWoken); // Notifie la tâche motorTask    
+      portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    }
+}
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
+    if (hspi == &hspi2) 
+    { 
+        // Notify motorTask that IMU data is ready
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;    
+        vTaskNotifyGiveFromISR(motorTaskHandle, &xHigherPriorityTaskWoken); // Notifie la tâche motorTask    
+        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    }
+}
+
 /* USER CODE END Application */
 

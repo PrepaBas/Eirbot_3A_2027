@@ -1,5 +1,6 @@
 # EIRBOT 3A 2027
 ## Equipe
+### OG
 - Barthere Aurelien E3
 - Bromet Alexandre E3
 - Daragnes Leïa I3
@@ -9,21 +10,24 @@
 - Marie Quentin E3
 - Tran-Ruesche Bastien E3
 
-#### Traquenard
+#### A traquenard
 - Berthod Hugo E3
 - Donias Arno I3
 - Michaud Lou-Ann E3
 - Maxime Lavit E3
+- Joan Dumarchat I3 (bientôt)
 
 #### Refus
 - 
 
+## Compilation micro-ros
 checkout to humble then go back to main folder and
 ``` bash
 docker pull microros/micro_ros_static_library_builder:humble
 docker run -it --rm -v $(pwd):/project --env MICROROS_LIBRARY_FOLDER=micro_ros_stm32cubemx_utils/microros_static_library microros/micro_ros_static_library_builder:humble
 ```
 
+## Debug config
 debug : Cortex-Debug dans vs code
 + `sudo apt install openocd`
 + fichier `.vscode/launch.json`
@@ -103,7 +107,7 @@ Ce serai bien d'en mettre
 Ecran tactile si possible avec une interface graphique (html par exemple) qui permet d'executer des scripts.
 
 #### ROS2
-Framwork Ros2 dans un docker pour pouvoir laisser raspos en natif. Le but est de commencer à écrire nos propres nodes. La strat générale c'est d'utiliser les Behavior Tree pour séquencer les actions : il faut donc faire des serveurs
+Framwork Ros2 dans un docker pour pouvoir laisser raspOS en natif. Le but est de commencer à écrire nos propres nodes. La strat générale c'est d'utiliser les Behavior Tree pour séquencer les actions : il faut donc faire des serveurs
 - rotation
 - ligne droite
 - path planning sommaire pour éviter nav2
@@ -134,7 +138,7 @@ Le MCU doit gérer :
 - des serveurs pour tourner, avancer et faire marcher les actionneurs.
 
 ## Evitement
-Un lidar si on veut branché sur la rasp et qui permet de faire de l'évitement longue distance  
+Un lidar si on veut, branché sur la rasp et qui permet de faire de l'évitement longue distance  
 Des tof branchés au MCU pour la défense de poing.
 
 Dans le meilleur des mondes des zones (devant près, devant loin, droite près ...) pour éviter de tourner avec les actionneurs déployés.
@@ -161,7 +165,7 @@ C4Component
 
         Container_Boundary(mcu, "Microcontrôleur STM32 (Micro-ROS)") {
             Component(t_as5047p, "Encoder-mode Timers", "Hardware", "Aqueri les signaux AB des encodeurs")
-            Component(t_imu, "IMU DMA and accumulation", "Hardware / RTOS Task", "Aqueri les données inertielles")
+            Component(t_imu, "IMU DMA", "Hardware / RTOS Task", "Aqueri les données inertielles")
             Component(t_mot, "Tâche Moteur", "RTOS Timer", "Calcule la vitesse des moteurs (~100Hz)")
             Component(t_sens, "Kalman Filter", "Function", "Lit les données des capteurs physiques")
         }

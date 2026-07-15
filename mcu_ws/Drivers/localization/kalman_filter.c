@@ -1,4 +1,5 @@
-
+#include "kalman_filter.h"
+#include "arm_math.h"
 // Standart unit is milimeter [mm] and radian [rad]
 
 float32_t X_f32[5] = {
@@ -31,3 +32,26 @@ arm_matrix_instance_f32 R; // Matrix R is measurement noise covariance matrix
 
 
 
+int init_kalman(kalman_state_t *state, 
+
+    if(state->pF != NULL){
+        state->pF(state->x); // update F
+    }
+    if(state->pQ != NULL){
+        state->pQ(state->x); // update Q
+    }
+    if(state->pf != NULL){
+        state->pf(state->x); // update x
+    }
+    else{
+        
+    }
+int propagation(kalman_state_t *state){
+
+    arm_mat_trans_f32(&state->F, &state->Ft);  
+    arm_mat_mult_f32(&state->P, &state->F, &state->tmp);
+    arm_mat_mult_f32(&state->Ft, &state->tmp, &state->P);
+    arm_mat_add_f32(&state->P, &state->Q, &state->P);
+    return 0;
+}
+int kalman_update(kalman_state_t *state, kalman_measurement_t *measurement);
