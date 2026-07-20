@@ -1,5 +1,5 @@
 # Build files
-mcu_ws/build
+mcu_ws/build/
 ros2_ws/build
 ros2_ws/install
 ros2_ws/log

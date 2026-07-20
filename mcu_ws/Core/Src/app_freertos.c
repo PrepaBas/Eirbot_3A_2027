@@ -226,8 +226,9 @@ void StartMotorTask(void *argument)
   //icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
 
   // Encoder Initialization
-  HAL_TIM_Encoder_Init(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
-  HAL_TIM_Encoder_Init(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
+  while(1){osDelay(1000);}
+  HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
 
   uint8_t enable_encoder = 0;
   uint8_t enable_imu = 0;
