@@ -39,11 +39,11 @@
 
 #include <std_msgs/msg/int32.h>
 
-#include "arm_math.h"
+//#include "arm_math.h"
 
 // Driver includes
 #include "icm42688.h"
-#include "kalman_filter.h"
+// #include "kalman_filter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,14 +75,14 @@ osThreadId_t uRosTaskHandle;
 const osThreadAttr_t uRosTask_attributes = {
   .name = "uRosTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 4000 * 4
+  .stack_size = 4000
 };
 /* Definitions for motorTask */
 osThreadId_t motorTaskHandle;
 const osThreadAttr_t motorTask_attributes = {
   .name = "motorTask",
   .priority = (osPriority_t) osPriorityRealtime,
-  .stack_size = 1000 * 4
+  .stack_size = 2000 
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -222,15 +222,15 @@ void StartMotorTask(void *argument)
   /* USER CODE BEGIN motorTask */
 
   // IMU Initialization
-  icm42688_t imu;
-  icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
+  //icm42688_t imu;
+  //icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
 
   // Encoder Initialization
   HAL_TIM_Encoder_Init(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
   HAL_TIM_Encoder_Init(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
 
-  uint8_t enable_encoder = 1;
-  uint8_t enable_imu = 1;
+  uint8_t enable_encoder = 0;
+  uint8_t enable_imu = 0;
   int32_t encoder1_count = 0;
   int32_t encoder2_count = 0;
   float gz = 0.0f;
@@ -241,40 +241,7 @@ void StartMotorTask(void *argument)
   float y = 0.0f;
   float theta = 0.0f;
 
-  // Kalman initialization
-  float X_f32[3] = {0, 0, 0};
-  arm_matrix_instance_f32 X;
-  arm_mat_init_f32(&X, 3, 1, X_f32);
-
-  float P_f32[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-  arm_matrix_instance_f32 P;
-  arm_mat_init_f32(&P, 3, 3, P_f32);
-
-  float F_f32[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-  arm_matrix_instance_f32 F;
-  arm_mat_init_f32(&F, 3, 3, F_f32);
-
-  float Q_f32[9] = {0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1};
-  arm_matrix_instance_f32 Q;
-  arm_mat_init_f32(&Q, 3, 3, Q_f32);
-
-  float Ft_f32[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-  arm_matrix_instance_f32 Ft;
-  arm_mat_init_f32(&Ft, 3, 3, Ft_f32);
-  
-  float tmp_f32[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-  arm_matrix_instance_f32 tmp;
-  arm_mat_init_f32(&tmp, 3, 3, tmp_f32);
-
-  kalman_workspace_t workspace = {
-      .x = X,
-      .F = F,
-      .P = P,
-      .Q = Q,
-      .Ft = Ft,
-      .tmp = tmp
-  };
-
+ 
   /* Infinite loop */
   for(;;)
   {
@@ -290,7 +257,6 @@ void StartMotorTask(void *argument)
     {
         vr = 0.0f;
         vl = 0.0f; // TODO get motor speed
-        continue;
     }
 
     if(enable_imu)
@@ -298,16 +264,16 @@ void StartMotorTask(void *argument)
         //* Read IMU data *//
         if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by timer interrupt every 1ms
         // Get sensor data
-        icm42688_start_dma_read(&imu); // start DMA read of IMU data. Interrupt will trigger when data is ready
+        //icm42688_start_dma_read(&imu); // start DMA read of IMU data. Interrupt will trigger when data is ready
         if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by dma interrupt when IMU data is ready
         //icm42688_parse_data(&imu);
-        int16_t raw_gz = (int16_t)((imu.rx_buf[11] << 8) | imu.rx_buf[12]);
+        //int16_t raw_gz = (int16_t)((imu.rx_buf[11] << 8) | imu.rx_buf[12]);
         // LSB sensitivity at ±2000dps full scale = 16.4 LSB/dps
-        gz = (float)raw_gz / 16.4f;
+        //gz = (float)raw_gz / 16.4f;
     }
 
 
-    osDelay(1);
+    osDelay(100);
   }
   /* USER CODE END motorTask */
 }

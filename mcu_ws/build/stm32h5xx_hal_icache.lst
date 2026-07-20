@@ -1,0 +1,1752 @@
+ARM GAS  /tmp/cc7P6REB.s 			page 1
+
+
+   1              		.cpu cortex-m33
+   2              		.arch armv8-m.main
+   3              		.fpu fpv5-sp-d16
+   4              		.arch_extension dsp
+   5              		.eabi_attribute 27, 1
+   6              		.eabi_attribute 28, 1
+   7              		.eabi_attribute 20, 1
+   8              		.eabi_attribute 21, 1
+   9              		.eabi_attribute 23, 3
+  10              		.eabi_attribute 24, 1
+  11              		.eabi_attribute 25, 1
+  12              		.eabi_attribute 26, 1
+  13              		.eabi_attribute 30, 1
+  14              		.eabi_attribute 34, 1
+  15              		.eabi_attribute 18, 4
+  16              		.file	"stm32h5xx_hal_icache.c"
+  17              		.text
+  18              	.Ltext0:
+  19              		.cfi_sections	.debug_frame
+  20              		.file 1 "Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c"
+  21              		.section	.text.HAL_ICACHE_ConfigAssociativityMode,"ax",%progbits
+  22              		.align	1
+  23              		.global	HAL_ICACHE_ConfigAssociativityMode
+  24              		.syntax unified
+  25              		.thumb
+  26              		.thumb_func
+  28              	HAL_ICACHE_ConfigAssociativityMode:
+  29              	.LVL0:
+  30              	.LFB157:
+   1:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+   2:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ******************************************************************************
+   3:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @file    stm32h5xx_hal_icache.c
+   4:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @author  MCD Application Team
+   5:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief   ICACHE HAL module driver.
+   6:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *          This file provides firmware functions to manage the following
+   7:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *          functionalities of the Instruction Cache (ICACHE).
+   8:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *           + Initialization and Configuration
+   9:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *           + Invalidate functions
+  10:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *           + Monitoring management
+  11:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *           + Memory address remap management
+  12:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ******************************************************************************
+  13:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @attention
+  14:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *
+  15:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * Copyright (c) 2023 STMicroelectronics.
+  16:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * All rights reserved.
+  17:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *
+  18:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  19:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * in the root directory of this software component.
+  20:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  21:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *
+  22:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ******************************************************************************
+  23:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @verbatim
+  24:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+  25:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                         ##### ICACHE main features #####
+  26:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+  27:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   [..]
+  28:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     The Instruction Cache (ICACHE) is introduced on C-AHB code bus of
+ARM GAS  /tmp/cc7P6REB.s 			page 2
+
+
+  29:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     Cortex-M33 processor to improve performance when fetching instruction
+  30:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     and data from both internal and external memories. It allows close to
+  31:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     zero wait states performance.
+  32:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  33:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     (+) The ICACHE provides two performance counters (Hit and Miss),
+  34:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         cache invalidate maintenance operation, error management and TrustZone
+  35:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         security support.
+  36:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  37:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     (+) The ICACHE provides additionally the possibility to remap input address
+  38:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         falling into up to four memory regions (used to remap aliased code in
+  39:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         external memories to the internal Code region, for execution)
+  40:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  41:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ===============================================================================
+  42:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                         ##### How to use this driver #####
+  43:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ===============================================================================
+  44:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   [..]
+  45:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****      The ICACHE HAL driver can be used as follows:
+  46:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  47:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     (#) Optionally configure the Instruction Cache mode with
+  48:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         HAL_ICACHE_ConfigAssociativityMode() if the default configuration
+  49:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         does not suit the application requirements.
+  50:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  51:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     (#) Enable and disable the Instruction Cache with respectively
+  52:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         HAL_ICACHE_Enable() and HAL_ICACHE_Disable().
+  53:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         Use HAL_ICACHE_IsEnabled() to get the Instruction Cache status.
+  54:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         To ensure a deterministic cache behavior after power on, system reset or after
+  55:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         a call to @ref HAL_ICACHE_Disable(), the application must call
+  56:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         @ref HAL_ICACHE_WaitForInvalidateComplete(). Indeed on power on, system reset
+  57:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         or cache disable, an automatic cache invalidation procedure is launched and the
+  58:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         cache is bypassed until the operation completes.
+  59:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  60:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     (#) Initiate the cache maintenance invalidation procedure with either
+  61:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         HAL_ICACHE_Invalidate() (blocking mode) or HAL_ICACHE_Invalidate_IT()
+  62:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         (interrupt mode). When interrupt mode is used, the callback function
+  63:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         HAL_ICACHE_InvalidateCompleteCallback() is called when the invalidate
+  64:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         procedure is complete. The function HAL_ICACHE_WaitForInvalidateComplete()
+  65:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         may be called to wait for the end of the invalidate procedure automatically
+  66:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         initiated when disabling the Instruction Cache with HAL_ICACHE_Disable().
+  67:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         The cache operation is bypassed during the invalidation procedure.
+  68:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  69:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     (#) Use the performance monitoring counters for Hit and Miss with the following
+  70:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         functions: HAL_ICACHE_Monitor_Start(), HAL_ICACHE_Monitor_Stop(),
+  71:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         HAL_ICACHE_Monitor_Reset(), HAL_ICACHE_Monitor_GetHitValue() and
+  72:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         HAL_ICACHE_Monitor_GetMissValue()
+  73:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  74:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     (#) Enable and disable up to four regions to remap input address from external
+  75:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         memories to the internal Code region for execution with
+  76:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         HAL_ICACHE_EnableRemapRegion() and HAL_ICACHE_DisableRemapRegion()
+  77:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  78:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @endverbatim
+  79:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+  80:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  81:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /* Includes ------------------------------------------------------------------*/
+  82:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #include "stm32h5xx_hal.h"
+  83:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  84:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @addtogroup STM32H5xx_HAL_Driver
+  85:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+ARM GAS  /tmp/cc7P6REB.s 			page 3
+
+
+  86:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+  87:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  88:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @defgroup ICACHE ICACHE
+  89:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief HAL ICACHE module driver
+  90:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+  91:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+  92:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #if defined(ICACHE) && defined (HAL_ICACHE_MODULE_ENABLED)
+  93:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  94:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /* Private typedef -----------------------------------------------------------*/
+  95:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /* Private constants ---------------------------------------------------------*/
+  96:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @addtogroup ICACHE_Private_Constants ICACHE Private Constants
+  97:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+  98:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+  99:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define ICACHE_INVALIDATE_TIMEOUT_VALUE        1U   /* 1ms */
+ 100:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define ICACHE_DISABLE_TIMEOUT_VALUE           1U   /* 1ms */
+ 101:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 102:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 103:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @}
+ 104:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 105:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 106:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /* Private macros ------------------------------------------------------------*/
+ 107:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @defgroup ICACHE_Private_Macros ICACHE Private Macros
+ 108:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+ 109:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 110:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 111:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define IS_ICACHE_ASSOCIATIVITY_MODE(__MODE__) (((__MODE__) == ICACHE_1WAY) || \
+ 112:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                                 ((__MODE__) == ICACHE_2WAYS))
+ 113:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 114:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define IS_ICACHE_MONITOR_TYPE(__TYPE__)    (((__TYPE__) == ICACHE_MONITOR_HIT_MISS) || \
+ 115:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__TYPE__) == ICACHE_MONITOR_HIT)      || \
+ 116:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__TYPE__) == ICACHE_MONITOR_MISS))
+ 117:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 118:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #if defined(ICACHE_CRRx_REN)
+ 119:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define IS_ICACHE_REGION_NUMBER(__NUMBER__) ((__NUMBER__) < 4U)
+ 120:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 121:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define IS_ICACHE_REGION_SIZE(__SIZE__)     (((__SIZE__) == ICACHE_REGIONSIZE_2MB)   || \
+ 122:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__SIZE__) == ICACHE_REGIONSIZE_4MB)   || \
+ 123:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__SIZE__) == ICACHE_REGIONSIZE_8MB)   || \
+ 124:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__SIZE__) == ICACHE_REGIONSIZE_16MB)  || \
+ 125:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__SIZE__) == ICACHE_REGIONSIZE_32MB)  || \
+ 126:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__SIZE__) == ICACHE_REGIONSIZE_64MB)  || \
+ 127:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                              ((__SIZE__) == ICACHE_REGIONSIZE_128MB))
+ 128:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 129:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define IS_ICACHE_REGION_TRAFFIC_ROUTE(__TRAFFICROUTE__)  (((__TRAFFICROUTE__) == ICACHE_MASTER1_PO
+ 130:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                                            ((__TRAFFICROUTE__) == ICACHE_MASTER2_PO
+ 131:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 132:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #define IS_ICACHE_REGION_OUTPUT_BURST_TYPE(__OUTPUTBURSTTYPE_) (((__OUTPUTBURSTTYPE_) == ICACHE_OUT
+ 133:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                                                                 ((__OUTPUTBURSTTYPE_) == ICACHE_OUT
+ 134:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 135:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #endif /*  ICACHE_CRRx_REN */
+ 136:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 137:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @}
+ 138:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 139:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 140:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /* Private variables ---------------------------------------------------------*/
+ 141:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /* Private function prototypes -----------------------------------------------*/
+ 142:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ARM GAS  /tmp/cc7P6REB.s 			page 4
+
+
+ 143:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /* Exported functions --------------------------------------------------------*/
+ 144:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 145:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @defgroup ICACHE_Exported_Functions ICACHE Exported Functions
+ 146:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+ 147:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 148:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 149:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @defgroup ICACHE_Exported_Functions_Group1 Initialization and control functions
+ 150:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief    Initialization and control functions
+ 151:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *
+ 152:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @verbatim
+ 153:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+ 154:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****             ##### Initialization and control functions #####
+ 155:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+ 156:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   [..]
+ 157:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     This section provides functions allowing to initialize and control the
+ 158:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     Instruction Cache (mode, invalidate procedure, performance counters).
+ 159:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @endverbatim
+ 160:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+ 161:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 162:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 163:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 164:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Configure the Instruction Cache cache associativity mode selection.
+ 165:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @param  AssociativityMode  Associativity mode selection
+ 166:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         This parameter can be one of the following values:
+ 167:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_1WAY   1-way cache (direct mapped cache)
+ 168:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_2WAYS  2-ways set associative cache (default)
+ 169:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK/HAL_ERROR)
+ 170:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 171:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_ConfigAssociativityMode(uint32_t AssociativityMode)
+ 172:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+  31              		.loc 1 172 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              		@ link register save eliminated.
+ 173:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+  36              		.loc 1 173 3 view .LVU1
+ 174:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 175:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check the parameters */
+ 176:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_ASSOCIATIVITY_MODE(AssociativityMode));
+  37              		.loc 1 176 3 view .LVU2
+ 177:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 178:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check cache is not enabled */
+ 179:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (READ_BIT(ICACHE->CR, ICACHE_CR_EN) != 0U)
+  38              		.loc 1 179 3 view .LVU3
+  39              		.loc 1 179 7 is_stmt 0 view .LVU4
+  40 0000 074B     		ldr	r3, .L4
+  41 0002 1B68     		ldr	r3, [r3]
+  42              		.loc 1 179 6 view .LVU5
+  43 0004 13F0010F 		tst	r3, #1
+  44 0008 07D1     		bne	.L3
+ 180:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 181:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     status = HAL_ERROR;
+ 182:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 183:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   else
+ 184:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 185:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     MODIFY_REG(ICACHE->CR, ICACHE_CR_WAYSEL, AssociativityMode);
+ARM GAS  /tmp/cc7P6REB.s 			page 5
+
+
+  45              		.loc 1 185 5 is_stmt 1 view .LVU6
+  46 000a 054A     		ldr	r2, .L4
+  47 000c 1368     		ldr	r3, [r2]
+  48 000e 23F00403 		bic	r3, r3, #4
+  49 0012 0343     		orrs	r3, r3, r0
+  50 0014 1360     		str	r3, [r2]
+ 173:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  51              		.loc 1 173 21 is_stmt 0 view .LVU7
+  52 0016 0020     		movs	r0, #0
+  53              	.LVL1:
+ 173:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+  54              		.loc 1 173 21 view .LVU8
+  55 0018 7047     		bx	lr
+  56              	.LVL2:
+  57              	.L3:
+ 181:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+  58              		.loc 1 181 12 view .LVU9
+  59 001a 0120     		movs	r0, #1
+  60              	.LVL3:
+ 186:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 187:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 188:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return status;
+  61              		.loc 1 188 3 is_stmt 1 view .LVU10
+ 189:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+  62              		.loc 1 189 1 is_stmt 0 view .LVU11
+  63 001c 7047     		bx	lr
+  64              	.L5:
+  65 001e 00BF     		.align	2
+  66              	.L4:
+  67 0020 00040340 		.word	1073939456
+  68              		.cfi_endproc
+  69              	.LFE157:
+  71              		.section	.text.HAL_ICACHE_DeInit,"ax",%progbits
+  72              		.align	1
+  73              		.global	HAL_ICACHE_DeInit
+  74              		.syntax unified
+  75              		.thumb
+  76              		.thumb_func
+  78              	HAL_ICACHE_DeInit:
+  79              	.LFB158:
+ 190:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 191:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 192:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  DeInitialize the Instruction Cache.
+ 193:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK)
+ 194:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 195:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_DeInit(void)
+ 196:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+  80              		.loc 1 196 1 is_stmt 1 view -0
+  81              		.cfi_startproc
+  82              		@ args = 0, pretend = 0, frame = 0
+  83              		@ frame_needed = 0, uses_anonymous_args = 0
+  84              		@ link register save eliminated.
+ 197:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Reset interrupt enable value */
+ 198:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->IER, 0U);
+  85              		.loc 1 198 3 view .LVU13
+  86 0000 0E4B     		ldr	r3, .L7
+  87 0002 0020     		movs	r0, #0
+ARM GAS  /tmp/cc7P6REB.s 			page 6
+
+
+  88 0004 9860     		str	r0, [r3, #8]
+ 199:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 200:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Clear any pending flags */
+ 201:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->FCR, ICACHE_FCR_CBSYENDF | ICACHE_FCR_CERRF);
+  89              		.loc 1 201 3 view .LVU14
+  90 0006 0622     		movs	r2, #6
+  91 0008 DA60     		str	r2, [r3, #12]
+ 202:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 203:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Disable cache then set default associative mode value */
+ 204:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   CLEAR_BIT(ICACHE->CR, ICACHE_CR_EN);
+  92              		.loc 1 204 3 view .LVU15
+  93 000a 1A68     		ldr	r2, [r3]
+  94 000c 22F00102 		bic	r2, r2, #1
+  95 0010 1A60     		str	r2, [r3]
+ 205:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->CR, ICACHE_CR_WAYSEL);
+  96              		.loc 1 205 3 view .LVU16
+  97 0012 0422     		movs	r2, #4
+  98 0014 1A60     		str	r2, [r3]
+ 206:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 207:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Stop monitor and reset monitor values */
+ 208:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   CLEAR_BIT(ICACHE->CR, ICACHE_MONITOR_HIT_MISS);
+  99              		.loc 1 208 3 view .LVU17
+ 100 0016 1A68     		ldr	r2, [r3]
+ 101 0018 22F44032 		bic	r2, r2, #196608
+ 102 001c 1A60     		str	r2, [r3]
+ 209:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   SET_BIT(ICACHE->CR, (ICACHE_MONITOR_HIT_MISS << 2U));
+ 103              		.loc 1 209 3 view .LVU18
+ 104 001e 1A68     		ldr	r2, [r3]
+ 105 0020 42F44022 		orr	r2, r2, #786432
+ 106 0024 1A60     		str	r2, [r3]
+ 210:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   CLEAR_BIT(ICACHE->CR, (ICACHE_MONITOR_HIT_MISS << 2U));
+ 107              		.loc 1 210 3 view .LVU19
+ 108 0026 1A68     		ldr	r2, [r3]
+ 109 0028 22F44022 		bic	r2, r2, #786432
+ 110 002c 1A60     		str	r2, [r3]
+ 211:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 212:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #if defined(ICACHE_CRRx_REN)
+ 213:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Reset regions configuration values */
+ 214:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->CRR0, ICACHE_REGIONSIZE_2MB << ICACHE_CRRx_RSIZE_Pos);
+ 111              		.loc 1 214 3 view .LVU20
+ 112 002e 4FF40072 		mov	r2, #512
+ 113 0032 1A62     		str	r2, [r3, #32]
+ 215:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->CRR1, ICACHE_REGIONSIZE_2MB << ICACHE_CRRx_RSIZE_Pos);
+ 114              		.loc 1 215 3 view .LVU21
+ 115 0034 5A62     		str	r2, [r3, #36]
+ 216:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->CRR2, ICACHE_REGIONSIZE_2MB << ICACHE_CRRx_RSIZE_Pos);
+ 116              		.loc 1 216 3 view .LVU22
+ 117 0036 9A62     		str	r2, [r3, #40]
+ 217:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->CRR3, ICACHE_REGIONSIZE_2MB << ICACHE_CRRx_RSIZE_Pos);
+ 118              		.loc 1 217 3 view .LVU23
+ 119 0038 DA62     		str	r2, [r3, #44]
+ 218:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #endif /*  ICACHE_CRRx_REN */
+ 219:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 220:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return HAL_OK;
+ 120              		.loc 1 220 3 view .LVU24
+ 221:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 121              		.loc 1 221 1 is_stmt 0 view .LVU25
+ARM GAS  /tmp/cc7P6REB.s 			page 7
+
+
+ 122 003a 7047     		bx	lr
+ 123              	.L8:
+ 124              		.align	2
+ 125              	.L7:
+ 126 003c 00040340 		.word	1073939456
+ 127              		.cfi_endproc
+ 128              	.LFE158:
+ 130              		.section	.text.HAL_ICACHE_Enable,"ax",%progbits
+ 131              		.align	1
+ 132              		.global	HAL_ICACHE_Enable
+ 133              		.syntax unified
+ 134              		.thumb
+ 135              		.thumb_func
+ 137              	HAL_ICACHE_Enable:
+ 138              	.LFB159:
+ 222:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 223:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 224:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Enable the Instruction Cache.
+ 225:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   This function always returns HAL_OK even if there is any ongoing
+ 226:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         cache operation. The Instruction Cache is bypassed until the
+ 227:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         cache operation completes.
+ 228:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK)
+ 229:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 230:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_Enable(void)
+ 231:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 139              		.loc 1 231 1 is_stmt 1 view -0
+ 140              		.cfi_startproc
+ 141              		@ args = 0, pretend = 0, frame = 0
+ 142              		@ frame_needed = 0, uses_anonymous_args = 0
+ 143              		@ link register save eliminated.
+ 232:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   SET_BIT(ICACHE->CR, ICACHE_CR_EN);
+ 144              		.loc 1 232 3 view .LVU27
+ 145 0000 034A     		ldr	r2, .L10
+ 146 0002 1368     		ldr	r3, [r2]
+ 147 0004 43F00103 		orr	r3, r3, #1
+ 148 0008 1360     		str	r3, [r2]
+ 233:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 234:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return HAL_OK;
+ 149              		.loc 1 234 3 view .LVU28
+ 235:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 150              		.loc 1 235 1 is_stmt 0 view .LVU29
+ 151 000a 0020     		movs	r0, #0
+ 152 000c 7047     		bx	lr
+ 153              	.L11:
+ 154 000e 00BF     		.align	2
+ 155              	.L10:
+ 156 0010 00040340 		.word	1073939456
+ 157              		.cfi_endproc
+ 158              	.LFE159:
+ 160              		.section	.text.HAL_ICACHE_Disable,"ax",%progbits
+ 161              		.align	1
+ 162              		.global	HAL_ICACHE_Disable
+ 163              		.syntax unified
+ 164              		.thumb
+ 165              		.thumb_func
+ 167              	HAL_ICACHE_Disable:
+ 168              	.LFB160:
+ARM GAS  /tmp/cc7P6REB.s 			page 8
+
+
+ 236:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 237:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 238:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Disable the Instruction Cache.
+ 239:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   This function waits for the cache being disabled but
+ 240:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         not for the end of the automatic cache invalidation procedure.
+ 241:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK/HAL_TIMEOUT)
+ 242:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 243:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_Disable(void)
+ 244:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 169              		.loc 1 244 1 is_stmt 1 view -0
+ 170              		.cfi_startproc
+ 171              		@ args = 0, pretend = 0, frame = 0
+ 172              		@ frame_needed = 0, uses_anonymous_args = 0
+ 173 0000 10B5     		push	{r4, lr}
+ 174              	.LCFI0:
+ 175              		.cfi_def_cfa_offset 8
+ 176              		.cfi_offset 4, -8
+ 177              		.cfi_offset 14, -4
+ 245:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 178              		.loc 1 245 3 view .LVU31
+ 179              	.LVL4:
+ 246:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t tickstart;
+ 180              		.loc 1 246 3 view .LVU32
+ 247:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 248:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Make sure BSYENDF is reset before to disable the instruction cache */
+ 249:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* as it automatically starts a cache invalidation procedure */
+ 250:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->FCR, ICACHE_FCR_CBSYENDF);
+ 181              		.loc 1 250 3 view .LVU33
+ 182 0002 0E4B     		ldr	r3, .L19
+ 183 0004 0222     		movs	r2, #2
+ 184 0006 DA60     		str	r2, [r3, #12]
+ 251:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 252:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   CLEAR_BIT(ICACHE->CR, ICACHE_CR_EN);
+ 185              		.loc 1 252 3 view .LVU34
+ 186 0008 1A68     		ldr	r2, [r3]
+ 187 000a 22F00102 		bic	r2, r2, #1
+ 188 000e 1A60     		str	r2, [r3]
+ 253:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 254:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Get tick */
+ 255:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   tickstart = HAL_GetTick();
+ 189              		.loc 1 255 3 view .LVU35
+ 190              		.loc 1 255 15 is_stmt 0 view .LVU36
+ 191 0010 FFF7FEFF 		bl	HAL_GetTick
+ 192              	.LVL5:
+ 193 0014 0446     		mov	r4, r0
+ 194              	.LVL6:
+ 256:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 257:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Wait for instruction cache being disabled */
+ 258:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   while (READ_BIT(ICACHE->CR, ICACHE_CR_EN) != 0U)
+ 195              		.loc 1 258 3 is_stmt 1 view .LVU37
+ 196              	.L13:
+ 197              		.loc 1 258 45 view .LVU38
+ 198              		.loc 1 258 10 is_stmt 0 view .LVU39
+ 199 0016 094B     		ldr	r3, .L19
+ 200 0018 1B68     		ldr	r3, [r3]
+ 201              		.loc 1 258 45 view .LVU40
+ 202 001a 13F0010F 		tst	r3, #1
+ARM GAS  /tmp/cc7P6REB.s 			page 9
+
+
+ 203 001e 0BD0     		beq	.L18
+ 259:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 260:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     if ((HAL_GetTick() - tickstart) > ICACHE_DISABLE_TIMEOUT_VALUE)
+ 204              		.loc 1 260 5 is_stmt 1 view .LVU41
+ 205              		.loc 1 260 10 is_stmt 0 view .LVU42
+ 206 0020 FFF7FEFF 		bl	HAL_GetTick
+ 207              	.LVL7:
+ 208              		.loc 1 260 24 discriminator 1 view .LVU43
+ 209 0024 001B     		subs	r0, r0, r4
+ 210              		.loc 1 260 8 discriminator 1 view .LVU44
+ 211 0026 0128     		cmp	r0, #1
+ 212 0028 F5D9     		bls	.L13
+ 261:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ 262:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* New check to avoid false timeout detection in case of preemption */
+ 263:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       if (READ_BIT(ICACHE->CR, ICACHE_CR_EN) != 0U)
+ 213              		.loc 1 263 7 is_stmt 1 view .LVU45
+ 214              		.loc 1 263 11 is_stmt 0 view .LVU46
+ 215 002a 044B     		ldr	r3, .L19
+ 216 002c 1B68     		ldr	r3, [r3]
+ 217              		.loc 1 263 10 view .LVU47
+ 218 002e 13F0010F 		tst	r3, #1
+ 219 0032 F0D0     		beq	.L13
+ 264:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       {
+ 265:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         status = HAL_TIMEOUT;
+ 220              		.loc 1 265 16 view .LVU48
+ 221 0034 0320     		movs	r0, #3
+ 222 0036 00E0     		b	.L14
+ 223              	.L18:
+ 245:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t tickstart;
+ 224              		.loc 1 245 21 view .LVU49
+ 225 0038 0020     		movs	r0, #0
+ 226              	.L14:
+ 227              	.LVL8:
+ 266:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         break;
+ 267:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       }
+ 268:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     }
+ 269:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 270:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 271:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return status;
+ 228              		.loc 1 271 3 is_stmt 1 view .LVU50
+ 272:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 229              		.loc 1 272 1 is_stmt 0 view .LVU51
+ 230 003a 10BD     		pop	{r4, pc}
+ 231              	.LVL9:
+ 232              	.L20:
+ 233              		.loc 1 272 1 view .LVU52
+ 234              		.align	2
+ 235              	.L19:
+ 236 003c 00040340 		.word	1073939456
+ 237              		.cfi_endproc
+ 238              	.LFE160:
+ 240              		.section	.text.HAL_ICACHE_IsEnabled,"ax",%progbits
+ 241              		.align	1
+ 242              		.global	HAL_ICACHE_IsEnabled
+ 243              		.syntax unified
+ 244              		.thumb
+ 245              		.thumb_func
+ARM GAS  /tmp/cc7P6REB.s 			page 10
+
+
+ 247              	HAL_ICACHE_IsEnabled:
+ 248              	.LFB161:
+ 273:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 274:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 275:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Check whether the Instruction Cache is enabled or not.
+ 276:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval Status (0: disabled, 1: enabled)
+ 277:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 278:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** uint32_t HAL_ICACHE_IsEnabled(void)
+ 279:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 249              		.loc 1 279 1 is_stmt 1 view -0
+ 250              		.cfi_startproc
+ 251              		@ args = 0, pretend = 0, frame = 0
+ 252              		@ frame_needed = 0, uses_anonymous_args = 0
+ 253              		@ link register save eliminated.
+ 280:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return ((READ_BIT(ICACHE->CR, ICACHE_CR_EN) != 0U) ? 1UL : 0UL);
+ 254              		.loc 1 280 3 view .LVU54
+ 255              		.loc 1 280 12 is_stmt 0 view .LVU55
+ 256 0000 024B     		ldr	r3, .L22
+ 257 0002 1868     		ldr	r0, [r3]
+ 281:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 258              		.loc 1 281 1 view .LVU56
+ 259 0004 00F00100 		and	r0, r0, #1
+ 260 0008 7047     		bx	lr
+ 261              	.L23:
+ 262 000a 00BF     		.align	2
+ 263              	.L22:
+ 264 000c 00040340 		.word	1073939456
+ 265              		.cfi_endproc
+ 266              	.LFE161:
+ 268              		.section	.text.HAL_ICACHE_Invalidate_IT,"ax",%progbits
+ 269              		.align	1
+ 270              		.global	HAL_ICACHE_Invalidate_IT
+ 271              		.syntax unified
+ 272              		.thumb
+ 273              		.thumb_func
+ 275              	HAL_ICACHE_Invalidate_IT:
+ 276              	.LFB163:
+ 282:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 283:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 284:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Invalidate the Instruction Cache.
+ 285:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   This function waits for the end of cache invalidation procedure
+ 286:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         and clears the associated BSYENDF flag.
+ 287:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK/HAL_ERROR/HAL_TIMEOUT)
+ 288:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 289:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_Invalidate(void)
+ 290:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 291:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status;
+ 292:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 293:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check if no ongoing operation */
+ 294:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (READ_BIT(ICACHE->SR, ICACHE_SR_BUSYF) == 0U)
+ 295:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 296:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Launch cache invalidation */
+ 297:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     SET_BIT(ICACHE->CR, ICACHE_CR_CACHEINV);
+ 298:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 299:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 300:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   status = HAL_ICACHE_WaitForInvalidateComplete();
+ 301:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ARM GAS  /tmp/cc7P6REB.s 			page 11
+
+
+ 302:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return status;
+ 303:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 304:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 305:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 306:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Invalidate the Instruction Cache with interrupt.
+ 307:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   This function launches cache invalidation and returns.
+ 308:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         User application shall resort to interrupt generation to check
+ 309:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         the end of the cache invalidation with the BSYENDF flag and the
+ 310:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         HAL_ICACHE_InvalidateCompleteCallback() callback.
+ 311:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK/HAL_ERROR)
+ 312:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 313:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_Invalidate_IT(void)
+ 314:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 277              		.loc 1 314 1 is_stmt 1 view -0
+ 278              		.cfi_startproc
+ 279              		@ args = 0, pretend = 0, frame = 0
+ 280              		@ frame_needed = 0, uses_anonymous_args = 0
+ 281              		@ link register save eliminated.
+ 315:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 282              		.loc 1 315 3 view .LVU58
+ 283              	.LVL10:
+ 316:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 317:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check no ongoing operation */
+ 318:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (READ_BIT(ICACHE->SR, ICACHE_SR_BUSYF) != 0U)
+ 284              		.loc 1 318 3 view .LVU59
+ 285              		.loc 1 318 7 is_stmt 0 view .LVU60
+ 286 0000 094B     		ldr	r3, .L27
+ 287 0002 5B68     		ldr	r3, [r3, #4]
+ 288              		.loc 1 318 6 view .LVU61
+ 289 0004 13F0010F 		tst	r3, #1
+ 290 0008 0CD1     		bne	.L26
+ 319:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 320:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     status = HAL_ERROR;
+ 321:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 322:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   else
+ 323:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 324:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Make sure BSYENDF is reset before to start cache invalidation */
+ 325:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     WRITE_REG(ICACHE->FCR, ICACHE_FCR_CBSYENDF);
+ 291              		.loc 1 325 5 is_stmt 1 view .LVU62
+ 292 000a 074B     		ldr	r3, .L27
+ 293 000c 0222     		movs	r2, #2
+ 294 000e DA60     		str	r2, [r3, #12]
+ 326:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 327:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Enable end of cache invalidation interrupt */
+ 328:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     SET_BIT(ICACHE->IER, ICACHE_IER_BSYENDIE);
+ 295              		.loc 1 328 5 view .LVU63
+ 296 0010 9A68     		ldr	r2, [r3, #8]
+ 297 0012 42F00202 		orr	r2, r2, #2
+ 298 0016 9A60     		str	r2, [r3, #8]
+ 329:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 330:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Launch cache invalidation */
+ 331:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     SET_BIT(ICACHE->CR, ICACHE_CR_CACHEINV);
+ 299              		.loc 1 331 5 view .LVU64
+ 300 0018 1A68     		ldr	r2, [r3]
+ 301 001a 42F00202 		orr	r2, r2, #2
+ 302 001e 1A60     		str	r2, [r3]
+ 315:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ARM GAS  /tmp/cc7P6REB.s 			page 12
+
+
+ 303              		.loc 1 315 21 is_stmt 0 view .LVU65
+ 304 0020 0020     		movs	r0, #0
+ 305 0022 7047     		bx	lr
+ 306              	.L26:
+ 320:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 307              		.loc 1 320 12 view .LVU66
+ 308 0024 0120     		movs	r0, #1
+ 309              	.LVL11:
+ 332:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 333:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 334:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return status;
+ 310              		.loc 1 334 3 is_stmt 1 view .LVU67
+ 335:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 311              		.loc 1 335 1 is_stmt 0 view .LVU68
+ 312 0026 7047     		bx	lr
+ 313              	.L28:
+ 314              		.align	2
+ 315              	.L27:
+ 316 0028 00040340 		.word	1073939456
+ 317              		.cfi_endproc
+ 318              	.LFE163:
+ 320              		.section	.text.HAL_ICACHE_WaitForInvalidateComplete,"ax",%progbits
+ 321              		.align	1
+ 322              		.global	HAL_ICACHE_WaitForInvalidateComplete
+ 323              		.syntax unified
+ 324              		.thumb
+ 325              		.thumb_func
+ 327              	HAL_ICACHE_WaitForInvalidateComplete:
+ 328              	.LFB164:
+ 336:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 337:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 338:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief Wait for the end of the Instruction Cache invalidate procedure.
+ 339:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note This function checks and clears the BSYENDF flag when set.
+ 340:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK/HAL_TIMEOUT)
+ 341:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 342:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_WaitForInvalidateComplete(void)
+ 343:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 329              		.loc 1 343 1 is_stmt 1 view -0
+ 330              		.cfi_startproc
+ 331              		@ args = 0, pretend = 0, frame = 0
+ 332              		@ frame_needed = 0, uses_anonymous_args = 0
+ 344:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 333              		.loc 1 344 3 view .LVU70
+ 334              	.LVL12:
+ 345:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t tickstart;
+ 335              		.loc 1 345 3 view .LVU71
+ 346:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 347:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check if ongoing invalidation operation */
+ 348:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (READ_BIT(ICACHE->SR, ICACHE_SR_BUSYF) != 0U)
+ 336              		.loc 1 348 3 view .LVU72
+ 337              		.loc 1 348 7 is_stmt 0 view .LVU73
+ 338 0000 114B     		ldr	r3, .L41
+ 339 0002 5B68     		ldr	r3, [r3, #4]
+ 340              		.loc 1 348 6 view .LVU74
+ 341 0004 13F0010F 		tst	r3, #1
+ 342 0008 04D1     		bne	.L39
+ 344:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t tickstart;
+ARM GAS  /tmp/cc7P6REB.s 			page 13
+
+
+ 343              		.loc 1 344 21 view .LVU75
+ 344 000a 0020     		movs	r0, #0
+ 345              	.LVL13:
+ 349:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 350:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Get tick */
+ 351:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     tickstart = HAL_GetTick();
+ 352:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 353:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Wait for end of cache invalidation */
+ 354:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     while (READ_BIT(ICACHE->SR, ICACHE_SR_BSYENDF) == 0U)
+ 355:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ 356:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       if ((HAL_GetTick() - tickstart) > ICACHE_INVALIDATE_TIMEOUT_VALUE)
+ 357:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       {
+ 358:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         /* New check to avoid false timeout detection in case of preemption */
+ 359:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         if (READ_BIT(ICACHE->SR, ICACHE_SR_BSYENDF) == 0U)
+ 360:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         {
+ 361:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****           status = HAL_TIMEOUT;
+ 362:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****           break;
+ 363:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         }
+ 364:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       }
+ 365:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     }
+ 366:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 367:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 368:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Clear BSYENDF */
+ 369:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   WRITE_REG(ICACHE->FCR, ICACHE_FCR_CBSYENDF);
+ 346              		.loc 1 369 3 is_stmt 1 view .LVU76
+ 347 000c 0E4B     		ldr	r3, .L41
+ 348 000e 0222     		movs	r2, #2
+ 349 0010 DA60     		str	r2, [r3, #12]
+ 370:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 371:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return status;
+ 350              		.loc 1 371 3 view .LVU77
+ 372:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 351              		.loc 1 372 1 is_stmt 0 view .LVU78
+ 352 0012 7047     		bx	lr
+ 353              	.LVL14:
+ 354              	.L39:
+ 343:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 355              		.loc 1 343 1 view .LVU79
+ 356 0014 10B5     		push	{r4, lr}
+ 357              	.LCFI1:
+ 358              		.cfi_def_cfa_offset 8
+ 359              		.cfi_offset 4, -8
+ 360              		.cfi_offset 14, -4
+ 351:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 361              		.loc 1 351 5 is_stmt 1 view .LVU80
+ 351:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 362              		.loc 1 351 17 is_stmt 0 view .LVU81
+ 363 0016 FFF7FEFF 		bl	HAL_GetTick
+ 364              	.LVL15:
+ 365 001a 0446     		mov	r4, r0
+ 366              	.LVL16:
+ 354:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ 367              		.loc 1 354 5 is_stmt 1 view .LVU82
+ 368              	.L31:
+ 354:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ 369              		.loc 1 354 52 view .LVU83
+ 354:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ARM GAS  /tmp/cc7P6REB.s 			page 14
+
+
+ 370              		.loc 1 354 12 is_stmt 0 view .LVU84
+ 371 001c 0A4B     		ldr	r3, .L41
+ 372 001e 5B68     		ldr	r3, [r3, #4]
+ 354:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ 373              		.loc 1 354 52 view .LVU85
+ 374 0020 13F0020F 		tst	r3, #2
+ 375 0024 0BD1     		bne	.L40
+ 356:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       {
+ 376              		.loc 1 356 7 is_stmt 1 view .LVU86
+ 356:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       {
+ 377              		.loc 1 356 12 is_stmt 0 view .LVU87
+ 378 0026 FFF7FEFF 		bl	HAL_GetTick
+ 379              	.LVL17:
+ 356:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       {
+ 380              		.loc 1 356 26 discriminator 1 view .LVU88
+ 381 002a 001B     		subs	r0, r0, r4
+ 356:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       {
+ 382              		.loc 1 356 10 discriminator 1 view .LVU89
+ 383 002c 0128     		cmp	r0, #1
+ 384 002e F5D9     		bls	.L31
+ 359:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         {
+ 385              		.loc 1 359 9 is_stmt 1 view .LVU90
+ 359:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         {
+ 386              		.loc 1 359 13 is_stmt 0 view .LVU91
+ 387 0030 054B     		ldr	r3, .L41
+ 388 0032 5B68     		ldr	r3, [r3, #4]
+ 359:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****         {
+ 389              		.loc 1 359 12 view .LVU92
+ 390 0034 13F0020F 		tst	r3, #2
+ 391 0038 F0D1     		bne	.L31
+ 361:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****           break;
+ 392              		.loc 1 361 18 view .LVU93
+ 393 003a 0320     		movs	r0, #3
+ 394 003c 00E0     		b	.L30
+ 395              	.L40:
+ 344:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t tickstart;
+ 396              		.loc 1 344 21 view .LVU94
+ 397 003e 0020     		movs	r0, #0
+ 398              	.L30:
+ 399              	.LVL18:
+ 369:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 400              		.loc 1 369 3 is_stmt 1 view .LVU95
+ 401 0040 014B     		ldr	r3, .L41
+ 402 0042 0222     		movs	r2, #2
+ 403 0044 DA60     		str	r2, [r3, #12]
+ 371:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 404              		.loc 1 371 3 view .LVU96
+ 405              		.loc 1 372 1 is_stmt 0 view .LVU97
+ 406 0046 10BD     		pop	{r4, pc}
+ 407              	.LVL19:
+ 408              	.L42:
+ 409              		.loc 1 372 1 view .LVU98
+ 410              		.align	2
+ 411              	.L41:
+ 412 0048 00040340 		.word	1073939456
+ 413              		.cfi_endproc
+ 414              	.LFE164:
+ARM GAS  /tmp/cc7P6REB.s 			page 15
+
+
+ 416              		.section	.text.HAL_ICACHE_Invalidate,"ax",%progbits
+ 417              		.align	1
+ 418              		.global	HAL_ICACHE_Invalidate
+ 419              		.syntax unified
+ 420              		.thumb
+ 421              		.thumb_func
+ 423              	HAL_ICACHE_Invalidate:
+ 424              	.LFB162:
+ 290:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status;
+ 425              		.loc 1 290 1 is_stmt 1 view -0
+ 426              		.cfi_startproc
+ 427              		@ args = 0, pretend = 0, frame = 0
+ 428              		@ frame_needed = 0, uses_anonymous_args = 0
+ 429 0000 08B5     		push	{r3, lr}
+ 430              	.LCFI2:
+ 431              		.cfi_def_cfa_offset 8
+ 432              		.cfi_offset 3, -8
+ 433              		.cfi_offset 14, -4
+ 291:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 434              		.loc 1 291 3 view .LVU100
+ 294:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 435              		.loc 1 294 3 view .LVU101
+ 294:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 436              		.loc 1 294 7 is_stmt 0 view .LVU102
+ 437 0002 064B     		ldr	r3, .L46
+ 438 0004 5B68     		ldr	r3, [r3, #4]
+ 294:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 439              		.loc 1 294 6 view .LVU103
+ 440 0006 13F0010F 		tst	r3, #1
+ 441 000a 04D1     		bne	.L44
+ 297:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 442              		.loc 1 297 5 is_stmt 1 view .LVU104
+ 443 000c 034A     		ldr	r2, .L46
+ 444 000e 1368     		ldr	r3, [r2]
+ 445 0010 43F00203 		orr	r3, r3, #2
+ 446 0014 1360     		str	r3, [r2]
+ 447              	.L44:
+ 300:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 448              		.loc 1 300 3 view .LVU105
+ 300:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 449              		.loc 1 300 12 is_stmt 0 view .LVU106
+ 450 0016 FFF7FEFF 		bl	HAL_ICACHE_WaitForInvalidateComplete
+ 451              	.LVL20:
+ 302:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 452              		.loc 1 302 3 is_stmt 1 view .LVU107
+ 303:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 453              		.loc 1 303 1 is_stmt 0 view .LVU108
+ 454 001a 08BD     		pop	{r3, pc}
+ 455              	.L47:
+ 456              		.align	2
+ 457              	.L46:
+ 458 001c 00040340 		.word	1073939456
+ 459              		.cfi_endproc
+ 460              	.LFE162:
+ 462              		.section	.text.HAL_ICACHE_Monitor_Start,"ax",%progbits
+ 463              		.align	1
+ 464              		.global	HAL_ICACHE_Monitor_Start
+ARM GAS  /tmp/cc7P6REB.s 			page 16
+
+
+ 465              		.syntax unified
+ 466              		.thumb
+ 467              		.thumb_func
+ 469              	HAL_ICACHE_Monitor_Start:
+ 470              	.LVL21:
+ 471              	.LFB165:
+ 373:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 374:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 375:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 376:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Start the Instruction Cache performance monitoring.
+ 377:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @param  MonitorType  Monitoring type
+ 378:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         This parameter can be one of the following values:
+ 379:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_HIT_MISS   Hit & Miss monitoring
+ 380:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_HIT        Hit monitoring
+ 381:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_MISS       Miss monitoring
+ 382:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK)
+ 383:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 384:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_Monitor_Start(uint32_t MonitorType)
+ 385:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 472              		.loc 1 385 1 is_stmt 1 view -0
+ 473              		.cfi_startproc
+ 474              		@ args = 0, pretend = 0, frame = 0
+ 475              		@ frame_needed = 0, uses_anonymous_args = 0
+ 476              		@ link register save eliminated.
+ 386:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check the parameters */
+ 387:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_MONITOR_TYPE(MonitorType));
+ 477              		.loc 1 387 3 view .LVU110
+ 388:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 389:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   SET_BIT(ICACHE->CR, MonitorType);
+ 478              		.loc 1 389 3 view .LVU111
+ 479 0000 024A     		ldr	r2, .L49
+ 480 0002 1368     		ldr	r3, [r2]
+ 481 0004 0343     		orrs	r3, r3, r0
+ 482 0006 1360     		str	r3, [r2]
+ 390:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 391:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return HAL_OK;
+ 483              		.loc 1 391 3 view .LVU112
+ 392:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 484              		.loc 1 392 1 is_stmt 0 view .LVU113
+ 485 0008 0020     		movs	r0, #0
+ 486              	.LVL22:
+ 487              		.loc 1 392 1 view .LVU114
+ 488 000a 7047     		bx	lr
+ 489              	.L50:
+ 490              		.align	2
+ 491              	.L49:
+ 492 000c 00040340 		.word	1073939456
+ 493              		.cfi_endproc
+ 494              	.LFE165:
+ 496              		.section	.text.HAL_ICACHE_Monitor_Stop,"ax",%progbits
+ 497              		.align	1
+ 498              		.global	HAL_ICACHE_Monitor_Stop
+ 499              		.syntax unified
+ 500              		.thumb
+ 501              		.thumb_func
+ 503              	HAL_ICACHE_Monitor_Stop:
+ 504              	.LVL23:
+ARM GAS  /tmp/cc7P6REB.s 			page 17
+
+
+ 505              	.LFB166:
+ 393:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 394:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 395:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Stop the Instruction Cache performance monitoring.
+ 396:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   Stopping the monitoring does not reset the values.
+ 397:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @param  MonitorType  Monitoring type
+ 398:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         This parameter can be one of the following values:
+ 399:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_HIT_MISS   Hit & Miss monitoring
+ 400:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_HIT        Hit monitoring
+ 401:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_MISS       Miss monitoring
+ 402:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK)
+ 403:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 404:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_Monitor_Stop(uint32_t MonitorType)
+ 405:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 506              		.loc 1 405 1 is_stmt 1 view -0
+ 507              		.cfi_startproc
+ 508              		@ args = 0, pretend = 0, frame = 0
+ 509              		@ frame_needed = 0, uses_anonymous_args = 0
+ 510              		@ link register save eliminated.
+ 406:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check the parameters */
+ 407:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_MONITOR_TYPE(MonitorType));
+ 511              		.loc 1 407 3 view .LVU116
+ 408:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 409:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   CLEAR_BIT(ICACHE->CR, MonitorType);
+ 512              		.loc 1 409 3 view .LVU117
+ 513 0000 034A     		ldr	r2, .L52
+ 514 0002 1368     		ldr	r3, [r2]
+ 515 0004 23EA0003 		bic	r3, r3, r0
+ 516 0008 1360     		str	r3, [r2]
+ 410:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 411:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return HAL_OK;
+ 517              		.loc 1 411 3 view .LVU118
+ 412:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 518              		.loc 1 412 1 is_stmt 0 view .LVU119
+ 519 000a 0020     		movs	r0, #0
+ 520              	.LVL24:
+ 521              		.loc 1 412 1 view .LVU120
+ 522 000c 7047     		bx	lr
+ 523              	.L53:
+ 524 000e 00BF     		.align	2
+ 525              	.L52:
+ 526 0010 00040340 		.word	1073939456
+ 527              		.cfi_endproc
+ 528              	.LFE166:
+ 530              		.section	.text.HAL_ICACHE_Monitor_Reset,"ax",%progbits
+ 531              		.align	1
+ 532              		.global	HAL_ICACHE_Monitor_Reset
+ 533              		.syntax unified
+ 534              		.thumb
+ 535              		.thumb_func
+ 537              	HAL_ICACHE_Monitor_Reset:
+ 538              	.LVL25:
+ 539              	.LFB167:
+ 413:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 414:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 415:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Reset the Instruction Cache performance monitoring values.
+ 416:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @param  MonitorType  Monitoring type
+ARM GAS  /tmp/cc7P6REB.s 			page 18
+
+
+ 417:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *         This parameter can be one of the following values:
+ 418:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_HIT_MISS   Hit & Miss monitoring
+ 419:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_HIT        Hit monitoring
+ 420:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *            @arg ICACHE_MONITOR_MISS       Miss monitoring
+ 421:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK)
+ 422:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 423:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef HAL_ICACHE_Monitor_Reset(uint32_t MonitorType)
+ 424:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 540              		.loc 1 424 1 is_stmt 1 view -0
+ 541              		.cfi_startproc
+ 542              		@ args = 0, pretend = 0, frame = 0
+ 543              		@ frame_needed = 0, uses_anonymous_args = 0
+ 544              		@ link register save eliminated.
+ 425:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check the parameters */
+ 426:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_MONITOR_TYPE(MonitorType));
+ 545              		.loc 1 426 3 view .LVU122
+ 427:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 428:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Force/Release reset */
+ 429:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   SET_BIT(ICACHE->CR, (MonitorType << 2U));
+ 546              		.loc 1 429 3 view .LVU123
+ 547 0000 054B     		ldr	r3, .L55
+ 548 0002 1A68     		ldr	r2, [r3]
+ 549 0004 42EA8002 		orr	r2, r2, r0, lsl #2
+ 550 0008 1A60     		str	r2, [r3]
+ 430:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   CLEAR_BIT(ICACHE->CR, (MonitorType << 2U));
+ 551              		.loc 1 430 3 view .LVU124
+ 552 000a 1A68     		ldr	r2, [r3]
+ 553 000c 22EA8002 		bic	r2, r2, r0, lsl #2
+ 554 0010 1A60     		str	r2, [r3]
+ 431:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 432:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return HAL_OK;
+ 555              		.loc 1 432 3 view .LVU125
+ 433:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 556              		.loc 1 433 1 is_stmt 0 view .LVU126
+ 557 0012 0020     		movs	r0, #0
+ 558              	.LVL26:
+ 559              		.loc 1 433 1 view .LVU127
+ 560 0014 7047     		bx	lr
+ 561              	.L56:
+ 562 0016 00BF     		.align	2
+ 563              	.L55:
+ 564 0018 00040340 		.word	1073939456
+ 565              		.cfi_endproc
+ 566              	.LFE167:
+ 568              		.section	.text.HAL_ICACHE_Monitor_GetHitValue,"ax",%progbits
+ 569              		.align	1
+ 570              		.global	HAL_ICACHE_Monitor_GetHitValue
+ 571              		.syntax unified
+ 572              		.thumb
+ 573              		.thumb_func
+ 575              	HAL_ICACHE_Monitor_GetHitValue:
+ 576              	.LFB168:
+ 434:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 435:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 436:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Get the Instruction Cache performance Hit monitoring value.
+ 437:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   Upon reaching the 32-bit maximum value, monitor does not wrap.
+ 438:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval Hit monitoring value
+ARM GAS  /tmp/cc7P6REB.s 			page 19
+
+
+ 439:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 440:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** uint32_t HAL_ICACHE_Monitor_GetHitValue(void)
+ 441:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 577              		.loc 1 441 1 is_stmt 1 view -0
+ 578              		.cfi_startproc
+ 579              		@ args = 0, pretend = 0, frame = 0
+ 580              		@ frame_needed = 0, uses_anonymous_args = 0
+ 581              		@ link register save eliminated.
+ 442:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return (ICACHE->HMONR);
+ 582              		.loc 1 442 3 view .LVU129
+ 583              		.loc 1 442 17 is_stmt 0 view .LVU130
+ 584 0000 014B     		ldr	r3, .L58
+ 585 0002 1869     		ldr	r0, [r3, #16]
+ 443:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 586              		.loc 1 443 1 view .LVU131
+ 587 0004 7047     		bx	lr
+ 588              	.L59:
+ 589 0006 00BF     		.align	2
+ 590              	.L58:
+ 591 0008 00040340 		.word	1073939456
+ 592              		.cfi_endproc
+ 593              	.LFE168:
+ 595              		.section	.text.HAL_ICACHE_Monitor_GetMissValue,"ax",%progbits
+ 596              		.align	1
+ 597              		.global	HAL_ICACHE_Monitor_GetMissValue
+ 598              		.syntax unified
+ 599              		.thumb
+ 600              		.thumb_func
+ 602              	HAL_ICACHE_Monitor_GetMissValue:
+ 603              	.LFB169:
+ 444:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 445:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 446:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Get the Instruction Cache performance Miss monitoring value.
+ 447:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   Upon reaching the 32-bit maximum value, monitor does not wrap.
+ 448:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval Miss monitoring value
+ 449:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 450:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** uint32_t HAL_ICACHE_Monitor_GetMissValue(void)
+ 451:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 604              		.loc 1 451 1 is_stmt 1 view -0
+ 605              		.cfi_startproc
+ 606              		@ args = 0, pretend = 0, frame = 0
+ 607              		@ frame_needed = 0, uses_anonymous_args = 0
+ 608              		@ link register save eliminated.
+ 452:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return (ICACHE->MMONR);
+ 609              		.loc 1 452 3 view .LVU133
+ 610              		.loc 1 452 17 is_stmt 0 view .LVU134
+ 611 0000 014B     		ldr	r3, .L61
+ 612 0002 5869     		ldr	r0, [r3, #20]
+ 453:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 613              		.loc 1 453 1 view .LVU135
+ 614 0004 7047     		bx	lr
+ 615              	.L62:
+ 616 0006 00BF     		.align	2
+ 617              	.L61:
+ 618 0008 00040340 		.word	1073939456
+ 619              		.cfi_endproc
+ 620              	.LFE169:
+ARM GAS  /tmp/cc7P6REB.s 			page 20
+
+
+ 622              		.section	.text.HAL_ICACHE_InvalidateCompleteCallback,"ax",%progbits
+ 623              		.align	1
+ 624              		.weak	HAL_ICACHE_InvalidateCompleteCallback
+ 625              		.syntax unified
+ 626              		.thumb
+ 627              		.thumb_func
+ 629              	HAL_ICACHE_InvalidateCompleteCallback:
+ 630              	.LFB171:
+ 454:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 455:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 456:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @}
+ 457:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 458:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 459:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @defgroup ICACHE_Exported_Functions_Group2 IRQ and callback functions
+ 460:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief    IRQ and callback functions
+ 461:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *
+ 462:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @verbatim
+ 463:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+ 464:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****             ##### IRQ and callback functions #####
+ 465:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+ 466:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   [..]
+ 467:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     This section provides functions allowing to handle ICACHE global interrupt
+ 468:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     and the associated callback functions.
+ 469:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @endverbatim
+ 470:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+ 471:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 472:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 473:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 474:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief Handle the Instruction Cache interrupt request.
+ 475:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note This function should be called under the ICACHE_IRQHandler().
+ 476:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note This function respectively disables the interrupt and clears the
+ 477:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *       flag of any pending flag before calling the associated user callback.
+ 478:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval None
+ 479:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 480:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** void HAL_ICACHE_IRQHandler(void)
+ 481:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 482:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Get current interrupt flags and interrupt sources value */
+ 483:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t itflags   = READ_REG(ICACHE->SR);
+ 484:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t itsources = READ_REG(ICACHE->IER);
+ 485:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 486:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check Instruction cache Error interrupt flag */
+ 487:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (((itflags & itsources) & ICACHE_FLAG_ERROR) != 0U)
+ 488:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 489:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Disable error interrupt */
+ 490:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     CLEAR_BIT(ICACHE->IER, ICACHE_IER_ERRIE);
+ 491:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 492:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Clear ERR pending flag */
+ 493:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     WRITE_REG(ICACHE->FCR, ICACHE_FCR_CERRF);
+ 494:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 495:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Instruction cache error interrupt user callback */
+ 496:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     HAL_ICACHE_ErrorCallback();
+ 497:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 498:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 499:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check Instruction cache BusyEnd interrupt flag */
+ 500:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (((itflags & itsources) & ICACHE_FLAG_BUSYEND) != 0U)
+ 501:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 502:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Disable end of cache invalidation interrupt */
+ARM GAS  /tmp/cc7P6REB.s 			page 21
+
+
+ 503:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     CLEAR_BIT(ICACHE->IER, ICACHE_IER_BSYENDIE);
+ 504:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 505:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Clear BSYENDF pending flag */
+ 506:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     WRITE_REG(ICACHE->FCR, ICACHE_FCR_CBSYENDF);
+ 507:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 508:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Instruction cache busyend interrupt user callback */
+ 509:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     HAL_ICACHE_InvalidateCompleteCallback();
+ 510:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 511:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 512:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 513:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 514:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Cache invalidation complete callback.
+ 515:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 516:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** __weak void HAL_ICACHE_InvalidateCompleteCallback(void)
+ 517:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 631              		.loc 1 517 1 is_stmt 1 view -0
+ 632              		.cfi_startproc
+ 633              		@ args = 0, pretend = 0, frame = 0
+ 634              		@ frame_needed = 0, uses_anonymous_args = 0
+ 635              		@ link register save eliminated.
+ 518:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* NOTE : This function should not be modified, when the callback is needed,
+ 519:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****             the HAL_ICACHE_InvalidateCompleteCallback() should be implemented in the user file
+ 520:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****    */
+ 521:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 636              		.loc 1 521 1 view .LVU137
+ 637 0000 7047     		bx	lr
+ 638              		.cfi_endproc
+ 639              	.LFE171:
+ 641              		.section	.text.HAL_ICACHE_ErrorCallback,"ax",%progbits
+ 642              		.align	1
+ 643              		.weak	HAL_ICACHE_ErrorCallback
+ 644              		.syntax unified
+ 645              		.thumb
+ 646              		.thumb_func
+ 648              	HAL_ICACHE_ErrorCallback:
+ 649              	.LFB172:
+ 522:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 523:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 524:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Error callback.
+ 525:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 526:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** __weak void HAL_ICACHE_ErrorCallback(void)
+ 527:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 650              		.loc 1 527 1 view -0
+ 651              		.cfi_startproc
+ 652              		@ args = 0, pretend = 0, frame = 0
+ 653              		@ frame_needed = 0, uses_anonymous_args = 0
+ 654              		@ link register save eliminated.
+ 528:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* NOTE : This function should not be modified, when the callback is needed,
+ 529:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****             the HAL_ICACHE_ErrorCallback() should be implemented in the user file
+ 530:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****    */
+ 531:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 655              		.loc 1 531 1 view .LVU139
+ 656 0000 7047     		bx	lr
+ 657              		.cfi_endproc
+ 658              	.LFE172:
+ 660              		.section	.text.HAL_ICACHE_IRQHandler,"ax",%progbits
+ 661              		.align	1
+ARM GAS  /tmp/cc7P6REB.s 			page 22
+
+
+ 662              		.global	HAL_ICACHE_IRQHandler
+ 663              		.syntax unified
+ 664              		.thumb
+ 665              		.thumb_func
+ 667              	HAL_ICACHE_IRQHandler:
+ 668              	.LFB170:
+ 481:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Get current interrupt flags and interrupt sources value */
+ 669              		.loc 1 481 1 view -0
+ 670              		.cfi_startproc
+ 671              		@ args = 0, pretend = 0, frame = 0
+ 672              		@ frame_needed = 0, uses_anonymous_args = 0
+ 673 0000 10B5     		push	{r4, lr}
+ 674              	.LCFI3:
+ 675              		.cfi_def_cfa_offset 8
+ 676              		.cfi_offset 4, -8
+ 677              		.cfi_offset 14, -4
+ 483:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t itsources = READ_REG(ICACHE->IER);
+ 678              		.loc 1 483 3 view .LVU141
+ 483:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t itsources = READ_REG(ICACHE->IER);
+ 679              		.loc 1 483 12 is_stmt 0 view .LVU142
+ 680 0002 0F4B     		ldr	r3, .L71
+ 681 0004 5C68     		ldr	r4, [r3, #4]
+ 682              	.LVL27:
+ 484:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 683              		.loc 1 484 3 is_stmt 1 view .LVU143
+ 484:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 684              		.loc 1 484 12 is_stmt 0 view .LVU144
+ 685 0006 9B68     		ldr	r3, [r3, #8]
+ 686              	.LVL28:
+ 487:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 687              		.loc 1 487 3 is_stmt 1 view .LVU145
+ 487:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 688              		.loc 1 487 17 is_stmt 0 view .LVU146
+ 689 0008 1C40     		ands	r4, r4, r3
+ 690              	.LVL29:
+ 487:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 691              		.loc 1 487 6 view .LVU147
+ 692 000a 14F0040F 		tst	r4, #4
+ 693 000e 03D1     		bne	.L69
+ 694              	.LVL30:
+ 695              	.L66:
+ 500:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 696              		.loc 1 500 3 is_stmt 1 view .LVU148
+ 500:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 697              		.loc 1 500 6 is_stmt 0 view .LVU149
+ 698 0010 14F0020F 		tst	r4, #2
+ 699 0014 0AD1     		bne	.L70
+ 700              	.L65:
+ 511:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 701              		.loc 1 511 1 view .LVU150
+ 702 0016 10BD     		pop	{r4, pc}
+ 703              	.LVL31:
+ 704              	.L69:
+ 490:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 705              		.loc 1 490 5 is_stmt 1 view .LVU151
+ 706 0018 094B     		ldr	r3, .L71
+ 707              	.LVL32:
+ARM GAS  /tmp/cc7P6REB.s 			page 23
+
+
+ 490:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 708              		.loc 1 490 5 is_stmt 0 view .LVU152
+ 709 001a 9A68     		ldr	r2, [r3, #8]
+ 710 001c 22F00402 		bic	r2, r2, #4
+ 711 0020 9A60     		str	r2, [r3, #8]
+ 493:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 712              		.loc 1 493 5 is_stmt 1 view .LVU153
+ 713 0022 0422     		movs	r2, #4
+ 714 0024 DA60     		str	r2, [r3, #12]
+ 496:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 715              		.loc 1 496 5 view .LVU154
+ 716 0026 FFF7FEFF 		bl	HAL_ICACHE_ErrorCallback
+ 717              	.LVL33:
+ 718 002a F1E7     		b	.L66
+ 719              	.L70:
+ 503:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 720              		.loc 1 503 5 view .LVU155
+ 721 002c 044B     		ldr	r3, .L71
+ 722 002e 9A68     		ldr	r2, [r3, #8]
+ 723 0030 22F00202 		bic	r2, r2, #2
+ 724 0034 9A60     		str	r2, [r3, #8]
+ 506:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 725              		.loc 1 506 5 view .LVU156
+ 726 0036 0222     		movs	r2, #2
+ 727 0038 DA60     		str	r2, [r3, #12]
+ 509:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 728              		.loc 1 509 5 view .LVU157
+ 729 003a FFF7FEFF 		bl	HAL_ICACHE_InvalidateCompleteCallback
+ 730              	.LVL34:
+ 511:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 731              		.loc 1 511 1 is_stmt 0 view .LVU158
+ 732 003e EAE7     		b	.L65
+ 733              	.L72:
+ 734              		.align	2
+ 735              	.L71:
+ 736 0040 00040340 		.word	1073939456
+ 737              		.cfi_endproc
+ 738              	.LFE170:
+ 740              		.section	.text.HAL_ICACHE_EnableRemapRegion,"ax",%progbits
+ 741              		.align	1
+ 742              		.global	HAL_ICACHE_EnableRemapRegion
+ 743              		.syntax unified
+ 744              		.thumb
+ 745              		.thumb_func
+ 747              	HAL_ICACHE_EnableRemapRegion:
+ 748              	.LVL35:
+ 749              	.LFB173:
+ 532:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 533:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 534:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @}
+ 535:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 536:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 537:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** #if defined(ICACHE_CRRx_REN)
+ 538:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /** @defgroup ICACHE_Exported_Functions_Group3 Memory remapped regions functions
+ 539:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief    Memory remapped regions functions
+ 540:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   *
+ 541:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @verbatim
+ARM GAS  /tmp/cc7P6REB.s 			page 24
+
+
+ 542:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+ 543:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****             ##### Memory remapped regions functions #####
+ 544:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   ==============================================================================
+ 545:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   [..]
+ 546:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     This section provides functions allowing to manage the remapping of
+ 547:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     external memories to internal Code for execution.
+ 548:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   @endverbatim
+ 549:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @{
+ 550:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 551:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 552:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 553:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Configure and enable a region for memory remapping.
+ 554:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @note   The Instruction Cache and the region must be disabled.
+ 555:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @param  Region   Region number
+ 556:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                      This parameter can be a value of @arg @ref ICACHE_Region
+ 557:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @param  pRegionConfig  Pointer to structure of ICACHE region configuration parameters
+ 558:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK/HAL_ERROR)
+ 559:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 560:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef  HAL_ICACHE_EnableRemapRegion(uint32_t Region, const ICACHE_RegionConfigTypeDef *
+ 561:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 750              		.loc 1 561 1 is_stmt 1 view -0
+ 751              		.cfi_startproc
+ 752              		@ args = 0, pretend = 0, frame = 0
+ 753              		@ frame_needed = 0, uses_anonymous_args = 0
+ 754              		@ link register save eliminated.
+ 562:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 755              		.loc 1 562 3 view .LVU160
+ 563:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   __IO uint32_t *p_reg;
+ 756              		.loc 1 563 3 view .LVU161
+ 564:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   uint32_t value;
+ 757              		.loc 1 564 3 view .LVU162
+ 565:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 566:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check the parameters */
+ 567:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_REGION_NUMBER(Region));
+ 758              		.loc 1 567 3 view .LVU163
+ 568:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_REGION_SIZE(pRegionConfig->Size));
+ 759              		.loc 1 568 3 view .LVU164
+ 569:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_REGION_TRAFFIC_ROUTE(pRegionConfig->TrafficRoute));
+ 760              		.loc 1 569 3 view .LVU165
+ 570:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_REGION_OUTPUT_BURST_TYPE(pRegionConfig->OutputBurstType));
+ 761              		.loc 1 570 3 view .LVU166
+ 571:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 572:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check cache is not enabled */
+ 573:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (READ_BIT(ICACHE->CR, ICACHE_CR_EN) != 0U)
+ 762              		.loc 1 573 3 view .LVU167
+ 763              		.loc 1 573 7 is_stmt 0 view .LVU168
+ 764 0000 144B     		ldr	r3, .L81
+ 765 0002 1B68     		ldr	r3, [r3]
+ 766              		.loc 1 573 6 view .LVU169
+ 767 0004 13F0010F 		tst	r3, #1
+ 768 0008 1FD1     		bne	.L75
+ 561:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 769              		.loc 1 561 1 view .LVU170
+ 770 000a 30B4     		push	{r4, r5}
+ 771              	.LCFI4:
+ 772              		.cfi_def_cfa_offset 8
+ 773              		.cfi_offset 4, -8
+ARM GAS  /tmp/cc7P6REB.s 			page 25
+
+
+ 774              		.cfi_offset 5, -4
+ 574:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 575:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     status = HAL_ERROR;
+ 576:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 577:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   else
+ 578:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 579:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Get region control register address */
+ 580:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     p_reg = &(ICACHE->CRR0) + (1U * Region);
+ 775              		.loc 1 580 5 is_stmt 1 view .LVU171
+ 776              		.loc 1 580 11 is_stmt 0 view .LVU172
+ 777 000c 124C     		ldr	r4, .L81+4
+ 778              	.LVL36:
+ 581:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 582:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Check region is not already enabled */
+ 583:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     if ((*p_reg & ICACHE_CRRx_REN) != 0U)
+ 779              		.loc 1 583 5 is_stmt 1 view .LVU173
+ 780              		.loc 1 583 10 is_stmt 0 view .LVU174
+ 781 000e 54F82030 		ldr	r3, [r4, r0, lsl #2]
+ 782              		.loc 1 583 8 view .LVU175
+ 783 0012 13F4004F 		tst	r3, #32768
+ 784 0016 1AD1     		bne	.L76
+ 584:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ 585:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       status = HAL_ERROR;
+ 586:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     }
+ 587:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     else
+ 588:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     {
+ 589:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* Region 2MB:   BaseAddress size 8 bits, RemapAddress size 11 bits */
+ 590:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* Region 4MB:   BaseAddress size 7 bits, RemapAddress size 10 bits */
+ 591:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* Region 8MB:   BaseAddress size 6 bits, RemapAddress size 9 bits  */
+ 592:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* Region 16MB:  BaseAddress size 5 bits, RemapAddress size 8 bits  */
+ 593:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* Region 32MB:  BaseAddress size 4 bits, RemapAddress size 7 bits  */
+ 594:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* Region 64MB:  BaseAddress size 3 bits, RemapAddress size 6 bits  */
+ 595:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       /* Region 128MB: BaseAddress size 2 bits, RemapAddress size 5 bits  */
+ 596:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       value  = ((pRegionConfig->BaseAddress & 0x1FFFFFFFU) >> 21U) & \
+ 785              		.loc 1 596 7 is_stmt 1 view .LVU176
+ 786              		.loc 1 596 31 is_stmt 0 view .LVU177
+ 787 0018 0A68     		ldr	r2, [r1]
+ 597:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                (0xFFU & ~(pRegionConfig->Size - 1U));
+ 788              		.loc 1 597 40 view .LVU178
+ 789 001a 8D68     		ldr	r5, [r1, #8]
+ 790              		.loc 1 597 25 view .LVU179
+ 791 001c 6B42     		rsbs	r3, r5, #0
+ 596:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                (0xFFU & ~(pRegionConfig->Size - 1U));
+ 792              		.loc 1 596 68 view .LVU180
+ 793 001e 03EA5252 		and	r2, r3, r2, lsr #21
+ 596:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                (0xFFU & ~(pRegionConfig->Size - 1U));
+ 794              		.loc 1 596 14 view .LVU181
+ 795 0022 5FFA82FC 		uxtb	ip, r2
+ 796              	.LVL37:
+ 598:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       value |= ((pRegionConfig->RemapAddress >> 5U) & \
+ 797              		.loc 1 598 7 is_stmt 1 view .LVU182
+ 599:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                 ((uint32_t)(0x7FFU & ~(pRegionConfig->Size - 1U)) << ICACHE_CRRx_REMAPADDR_Pos));
+ 798              		.loc 1 599 67 is_stmt 0 view .LVU183
+ 799 0026 1A04     		lsls	r2, r3, #16
+ 598:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       value |= ((pRegionConfig->RemapAddress >> 5U) & \
+ 800              		.loc 1 598 53 view .LVU184
+ 801 0028 4B68     		ldr	r3, [r1, #4]
+ARM GAS  /tmp/cc7P6REB.s 			page 26
+
+
+ 802 002a 02EA5312 		and	r2, r2, r3, lsr #5
+ 598:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       value |= ((pRegionConfig->RemapAddress >> 5U) & \
+ 803              		.loc 1 598 13 view .LVU185
+ 804 002e 42EA0C02 		orr	r2, r2, ip
+ 805              	.LVL38:
+ 600:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       value |= (pRegionConfig->Size << ICACHE_CRRx_RSIZE_Pos) | pRegionConfig->TrafficRoute | \
+ 806              		.loc 1 600 7 is_stmt 1 view .LVU186
+ 807              		.loc 1 600 78 is_stmt 0 view .LVU187
+ 808 0032 CB68     		ldr	r3, [r1, #12]
+ 809              		.loc 1 600 63 view .LVU188
+ 810 0034 43EA4523 		orr	r3, r3, r5, lsl #9
+ 601:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                pRegionConfig->OutputBurstType;
+ 811              		.loc 1 601 29 view .LVU189
+ 812 0038 0969     		ldr	r1, [r1, #16]
+ 813              	.LVL39:
+ 600:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       value |= (pRegionConfig->Size << ICACHE_CRRx_RSIZE_Pos) | pRegionConfig->TrafficRoute | \
+ 814              		.loc 1 600 93 view .LVU190
+ 815 003a 0B43     		orrs	r3, r3, r1
+ 600:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       value |= (pRegionConfig->Size << ICACHE_CRRx_RSIZE_Pos) | pRegionConfig->TrafficRoute | \
+ 816              		.loc 1 600 13 view .LVU191
+ 817 003c 1343     		orrs	r3, r3, r2
+ 818              	.LVL40:
+ 602:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****       *p_reg = (value | ICACHE_CRRx_REN);
+ 819              		.loc 1 602 7 is_stmt 1 view .LVU192
+ 820              		.loc 1 602 23 is_stmt 0 view .LVU193
+ 821 003e 43F40043 		orr	r3, r3, #32768
+ 822              	.LVL41:
+ 823              		.loc 1 602 14 view .LVU194
+ 824 0042 44F82030 		str	r3, [r4, r0, lsl #2]
+ 825              	.LVL42:
+ 562:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   __IO uint32_t *p_reg;
+ 826              		.loc 1 562 21 view .LVU195
+ 827 0046 0020     		movs	r0, #0
+ 828              	.LVL43:
+ 562:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   __IO uint32_t *p_reg;
+ 829              		.loc 1 562 21 view .LVU196
+ 830 0048 02E0     		b	.L74
+ 831              	.LVL44:
+ 832              	.L75:
+ 833              	.LCFI5:
+ 834              		.cfi_def_cfa_offset 0
+ 835              		.cfi_restore 4
+ 836              		.cfi_restore 5
+ 575:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 837              		.loc 1 575 12 view .LVU197
+ 838 004a 0120     		movs	r0, #1
+ 839              	.LVL45:
+ 603:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     }
+ 604:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 605:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 606:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return status;
+ 840              		.loc 1 606 3 is_stmt 1 view .LVU198
+ 607:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 841              		.loc 1 607 1 is_stmt 0 view .LVU199
+ 842 004c 7047     		bx	lr
+ 843              	.LVL46:
+ 844              	.L76:
+ARM GAS  /tmp/cc7P6REB.s 			page 27
+
+
+ 845              	.LCFI6:
+ 846              		.cfi_def_cfa_offset 8
+ 847              		.cfi_offset 4, -8
+ 848              		.cfi_offset 5, -4
+ 585:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     }
+ 849              		.loc 1 585 14 view .LVU200
+ 850 004e 0120     		movs	r0, #1
+ 851              	.LVL47:
+ 852              	.L74:
+ 606:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 853              		.loc 1 606 3 is_stmt 1 view .LVU201
+ 854              		.loc 1 607 1 is_stmt 0 view .LVU202
+ 855 0050 30BC     		pop	{r4, r5}
+ 856              	.LCFI7:
+ 857              		.cfi_restore 5
+ 858              		.cfi_restore 4
+ 859              		.cfi_def_cfa_offset 0
+ 860              	.LVL48:
+ 861              		.loc 1 607 1 view .LVU203
+ 862 0052 7047     		bx	lr
+ 863              	.L82:
+ 864              		.align	2
+ 865              	.L81:
+ 866 0054 00040340 		.word	1073939456
+ 867 0058 20040340 		.word	1073939488
+ 868              		.cfi_endproc
+ 869              	.LFE173:
+ 871              		.section	.text.HAL_ICACHE_DisableRemapRegion,"ax",%progbits
+ 872              		.align	1
+ 873              		.global	HAL_ICACHE_DisableRemapRegion
+ 874              		.syntax unified
+ 875              		.thumb
+ 876              		.thumb_func
+ 878              	HAL_ICACHE_DisableRemapRegion:
+ 879              	.LVL49:
+ 880              	.LFB174:
+ 608:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 609:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** /**
+ 610:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @brief  Disable the memory remapping for a predefined region.
+ 611:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @param  Region   Region number
+ 612:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****                      This parameter can be a value of @arg @ref ICACHE_Region
+ 613:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   * @retval HAL status (HAL_OK/HAL_ERROR)
+ 614:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   */
+ 615:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** HAL_StatusTypeDef  HAL_ICACHE_DisableRemapRegion(uint32_t Region)
+ 616:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** {
+ 881              		.loc 1 616 1 is_stmt 1 view -0
+ 882              		.cfi_startproc
+ 883              		@ args = 0, pretend = 0, frame = 0
+ 884              		@ frame_needed = 0, uses_anonymous_args = 0
+ 885              		@ link register save eliminated.
+ 617:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 886              		.loc 1 617 3 view .LVU205
+ 618:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   __IO uint32_t *p_reg;
+ 887              		.loc 1 618 3 view .LVU206
+ 619:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 620:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check the parameters */
+ 621:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   assert_param(IS_ICACHE_REGION_NUMBER(Region));
+ARM GAS  /tmp/cc7P6REB.s 			page 28
+
+
+ 888              		.loc 1 621 3 view .LVU207
+ 622:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 623:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   /* Check cache is not enabled */
+ 624:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   if (READ_BIT(ICACHE->CR, ICACHE_CR_EN) != 0U)
+ 889              		.loc 1 624 3 view .LVU208
+ 890              		.loc 1 624 7 is_stmt 0 view .LVU209
+ 891 0000 074B     		ldr	r3, .L86
+ 892 0002 1B68     		ldr	r3, [r3]
+ 893              		.loc 1 624 6 view .LVU210
+ 894 0004 13F0010F 		tst	r3, #1
+ 895 0008 08D1     		bne	.L85
+ 625:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 626:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     status = HAL_ERROR;
+ 627:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 628:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   else
+ 629:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   {
+ 630:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     /* Get region control register address */
+ 631:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     p_reg = &(ICACHE->CRR0) + (1U * Region);
+ 896              		.loc 1 631 5 is_stmt 1 view .LVU211
+ 897              		.loc 1 631 11 is_stmt 0 view .LVU212
+ 898 000a 064A     		ldr	r2, .L86+4
+ 899              	.LVL50:
+ 632:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 633:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****     *p_reg &= ~ICACHE_CRRx_REN;
+ 900              		.loc 1 633 5 is_stmt 1 view .LVU213
+ 901 000c 52F82030 		ldr	r3, [r2, r0, lsl #2]
+ 902              		.loc 1 633 12 is_stmt 0 view .LVU214
+ 903 0010 23F40043 		bic	r3, r3, #32768
+ 904 0014 42F82030 		str	r3, [r2, r0, lsl #2]
+ 617:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   __IO uint32_t *p_reg;
+ 905              		.loc 1 617 21 view .LVU215
+ 906 0018 0020     		movs	r0, #0
+ 907              	.LVL51:
+ 617:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   __IO uint32_t *p_reg;
+ 908              		.loc 1 617 21 view .LVU216
+ 909 001a 7047     		bx	lr
+ 910              	.LVL52:
+ 911              	.L85:
+ 626:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 912              		.loc 1 626 12 view .LVU217
+ 913 001c 0120     		movs	r0, #1
+ 914              	.LVL53:
+ 634:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   }
+ 635:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** 
+ 636:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c ****   return status;
+ 915              		.loc 1 636 3 is_stmt 1 view .LVU218
+ 637:Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_icache.c **** }
+ 916              		.loc 1 637 1 is_stmt 0 view .LVU219
+ 917 001e 7047     		bx	lr
+ 918              	.L87:
+ 919              		.align	2
+ 920              	.L86:
+ 921 0020 00040340 		.word	1073939456
+ 922 0024 20040340 		.word	1073939488
+ 923              		.cfi_endproc
+ 924              	.LFE174:
+ 926              		.text
+ARM GAS  /tmp/cc7P6REB.s 			page 29
+
+
+ 927              	.Letext0:
+ 928              		.file 2 "Drivers/CMSIS/Device/ST/STM32H5xx/Include/stm32h533xx.h"
+ 929              		.file 3 "/usr/lib/gcc/arm-none-eabi/13.2.1/include/stdint.h"
+ 930              		.file 4 "Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal_def.h"
+ 931              		.file 5 "Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal_icache.h"
+ 932              		.file 6 "Drivers/STM32H5xx_HAL_Driver/Inc/stm32h5xx_hal.h"
+ARM GAS  /tmp/cc7P6REB.s 			page 30
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32h5xx_hal_icache.c
+     /tmp/cc7P6REB.s:22     .text.HAL_ICACHE_ConfigAssociativityMode:00000000 $t
+     /tmp/cc7P6REB.s:28     .text.HAL_ICACHE_ConfigAssociativityMode:00000000 HAL_ICACHE_ConfigAssociativityMode
+     /tmp/cc7P6REB.s:67     .text.HAL_ICACHE_ConfigAssociativityMode:00000020 $d
+     /tmp/cc7P6REB.s:72     .text.HAL_ICACHE_DeInit:00000000 $t
+     /tmp/cc7P6REB.s:78     .text.HAL_ICACHE_DeInit:00000000 HAL_ICACHE_DeInit
+     /tmp/cc7P6REB.s:126    .text.HAL_ICACHE_DeInit:0000003c $d
+     /tmp/cc7P6REB.s:131    .text.HAL_ICACHE_Enable:00000000 $t
+     /tmp/cc7P6REB.s:137    .text.HAL_ICACHE_Enable:00000000 HAL_ICACHE_Enable
+     /tmp/cc7P6REB.s:156    .text.HAL_ICACHE_Enable:00000010 $d
+     /tmp/cc7P6REB.s:161    .text.HAL_ICACHE_Disable:00000000 $t
+     /tmp/cc7P6REB.s:167    .text.HAL_ICACHE_Disable:00000000 HAL_ICACHE_Disable
+     /tmp/cc7P6REB.s:236    .text.HAL_ICACHE_Disable:0000003c $d
+     /tmp/cc7P6REB.s:241    .text.HAL_ICACHE_IsEnabled:00000000 $t
+     /tmp/cc7P6REB.s:247    .text.HAL_ICACHE_IsEnabled:00000000 HAL_ICACHE_IsEnabled
+     /tmp/cc7P6REB.s:264    .text.HAL_ICACHE_IsEnabled:0000000c $d
+     /tmp/cc7P6REB.s:269    .text.HAL_ICACHE_Invalidate_IT:00000000 $t
+     /tmp/cc7P6REB.s:275    .text.HAL_ICACHE_Invalidate_IT:00000000 HAL_ICACHE_Invalidate_IT
+     /tmp/cc7P6REB.s:316    .text.HAL_ICACHE_Invalidate_IT:00000028 $d
+     /tmp/cc7P6REB.s:321    .text.HAL_ICACHE_WaitForInvalidateComplete:00000000 $t
+     /tmp/cc7P6REB.s:327    .text.HAL_ICACHE_WaitForInvalidateComplete:00000000 HAL_ICACHE_WaitForInvalidateComplete
+     /tmp/cc7P6REB.s:412    .text.HAL_ICACHE_WaitForInvalidateComplete:00000048 $d
+     /tmp/cc7P6REB.s:417    .text.HAL_ICACHE_Invalidate:00000000 $t
+     /tmp/cc7P6REB.s:423    .text.HAL_ICACHE_Invalidate:00000000 HAL_ICACHE_Invalidate
+     /tmp/cc7P6REB.s:458    .text.HAL_ICACHE_Invalidate:0000001c $d
+     /tmp/cc7P6REB.s:463    .text.HAL_ICACHE_Monitor_Start:00000000 $t
+     /tmp/cc7P6REB.s:469    .text.HAL_ICACHE_Monitor_Start:00000000 HAL_ICACHE_Monitor_Start
+     /tmp/cc7P6REB.s:492    .text.HAL_ICACHE_Monitor_Start:0000000c $d
+     /tmp/cc7P6REB.s:497    .text.HAL_ICACHE_Monitor_Stop:00000000 $t
+     /tmp/cc7P6REB.s:503    .text.HAL_ICACHE_Monitor_Stop:00000000 HAL_ICACHE_Monitor_Stop
+     /tmp/cc7P6REB.s:526    .text.HAL_ICACHE_Monitor_Stop:00000010 $d
+     /tmp/cc7P6REB.s:531    .text.HAL_ICACHE_Monitor_Reset:00000000 $t
+     /tmp/cc7P6REB.s:537    .text.HAL_ICACHE_Monitor_Reset:00000000 HAL_ICACHE_Monitor_Reset
+     /tmp/cc7P6REB.s:564    .text.HAL_ICACHE_Monitor_Reset:00000018 $d
+     /tmp/cc7P6REB.s:569    .text.HAL_ICACHE_Monitor_GetHitValue:00000000 $t
+     /tmp/cc7P6REB.s:575    .text.HAL_ICACHE_Monitor_GetHitValue:00000000 HAL_ICACHE_Monitor_GetHitValue
+     /tmp/cc7P6REB.s:591    .text.HAL_ICACHE_Monitor_GetHitValue:00000008 $d
+     /tmp/cc7P6REB.s:596    .text.HAL_ICACHE_Monitor_GetMissValue:00000000 $t
+     /tmp/cc7P6REB.s:602    .text.HAL_ICACHE_Monitor_GetMissValue:00000000 HAL_ICACHE_Monitor_GetMissValue
+     /tmp/cc7P6REB.s:618    .text.HAL_ICACHE_Monitor_GetMissValue:00000008 $d
+     /tmp/cc7P6REB.s:623    .text.HAL_ICACHE_InvalidateCompleteCallback:00000000 $t
+     /tmp/cc7P6REB.s:629    .text.HAL_ICACHE_InvalidateCompleteCallback:00000000 HAL_ICACHE_InvalidateCompleteCallback
+     /tmp/cc7P6REB.s:642    .text.HAL_ICACHE_ErrorCallback:00000000 $t
+     /tmp/cc7P6REB.s:648    .text.HAL_ICACHE_ErrorCallback:00000000 HAL_ICACHE_ErrorCallback
+     /tmp/cc7P6REB.s:661    .text.HAL_ICACHE_IRQHandler:00000000 $t
+     /tmp/cc7P6REB.s:667    .text.HAL_ICACHE_IRQHandler:00000000 HAL_ICACHE_IRQHandler
+     /tmp/cc7P6REB.s:736    .text.HAL_ICACHE_IRQHandler:00000040 $d
+     /tmp/cc7P6REB.s:741    .text.HAL_ICACHE_EnableRemapRegion:00000000 $t
+     /tmp/cc7P6REB.s:747    .text.HAL_ICACHE_EnableRemapRegion:00000000 HAL_ICACHE_EnableRemapRegion
+     /tmp/cc7P6REB.s:866    .text.HAL_ICACHE_EnableRemapRegion:00000054 $d
+     /tmp/cc7P6REB.s:872    .text.HAL_ICACHE_DisableRemapRegion:00000000 $t
+     /tmp/cc7P6REB.s:878    .text.HAL_ICACHE_DisableRemapRegion:00000000 HAL_ICACHE_DisableRemapRegion
+     /tmp/cc7P6REB.s:921    .text.HAL_ICACHE_DisableRemapRegion:00000020 $d
+
+UNDEFINED SYMBOLS
+HAL_GetTick
+ARM GAS  /tmp/cc7P6REB.s 			page 31
+
+
