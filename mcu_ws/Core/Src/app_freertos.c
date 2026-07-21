@@ -43,6 +43,7 @@
 
 // Driver includes
 #include "icm42688.h"
+#include "kalman_filter.h"
 // #include "kalman_filter.h"
 /* USER CODE END Includes */
 
@@ -75,14 +76,14 @@ osThreadId_t uRosTaskHandle;
 const osThreadAttr_t uRosTask_attributes = {
   .name = "uRosTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 4000
+  .stack_size = 4000 * 4
 };
 /* Definitions for motorTask */
 osThreadId_t motorTaskHandle;
 const osThreadAttr_t motorTask_attributes = {
   .name = "motorTask",
   .priority = (osPriority_t) osPriorityRealtime,
-  .stack_size = 2000 
+  .stack_size = 1000 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -161,15 +162,17 @@ void StartURosTask(void *argument)
       cubemx_transport_write,
       cubemx_transport_read);
 
+    while (rmw_uros_ping_agent(100, 1) != RMW_RET_OK)
+    {
+      osDelay(100);
+    }
+
     rcl_allocator_t freeRTOS_allocator = rcutils_get_zero_initialized_allocator();
     freeRTOS_allocator.allocate = microros_allocate;
     freeRTOS_allocator.deallocate = microros_deallocate;
     freeRTOS_allocator.reallocate = microros_reallocate;
     freeRTOS_allocator.zero_allocate =  microros_zero_allocate;
 
-    if (!rcutils_set_default_allocator(&freeRTOS_allocator)) {
-        printf("Error on default allocators (line %d)\n", __LINE__);
-    }
 
     // micro-ROS app
 
@@ -222,56 +225,79 @@ void StartMotorTask(void *argument)
   /* USER CODE BEGIN motorTask */
 
   // IMU Initialization
-  //icm42688_t imu;
-  //icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
+  icm42688_t imu;
+  icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
 
   // Encoder Initialization
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
-  while(1){osDelay(1000);}
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
 
-  uint8_t enable_encoder = 0;
+  uint8_t enable_encoder = 1;
   uint8_t enable_imu = 0;
   int32_t encoder1_count = 0;
   int32_t encoder2_count = 0;
+  int32_t encoder1_delta = 0;
+  int32_t encoder2_delta = 0;  
   float gz = 0.0f;
   float vr = 0.0f;
   float vl = 0.0f;
 
-  float x = 0.0f;
-  float y = 0.0f;
-  float theta = 0.0f;
+  float pose[3] = {0.0f, 0.0f, 0.0f};
 
  
   /* Infinite loop */
   for(;;)
   {
 
+    if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by timer interrupt every 1ms
+
     //* Read encoder counts *//
     if(enable_encoder)
     {
-        encoder1_count = (int32_t)__HAL_TIM_GET_COUNTER(&htim2); // read htim2->COUNT and cast into int32_t to have center value
-        encoder2_count = (int32_t)__HAL_TIM_GET_COUNTER(&htim5);
-    }
-
-    if(!enable_encoder && !enable_imu)
-    {
-        vr = 0.0f;
-        vl = 0.0f; // TODO get motor speed
+      int32_t old_encoder1_count = encoder1_count;
+      int32_t old_encoder2_count = encoder2_count;
+      encoder1_count = (int32_t)__HAL_TIM_GET_COUNTER(&htim2); // read htim2->COUNT and cast into int32_t to have center value
+      encoder2_count = (int32_t)__HAL_TIM_GET_COUNTER(&htim5);
+      encoder1_delta = encoder1_count - old_encoder1_count;
+      encoder2_delta = encoder2_count - old_encoder2_count;
     }
 
     if(enable_imu)
     {
         //* Read IMU data *//
-        if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by timer interrupt every 1ms
         // Get sensor data
-        //icm42688_start_dma_read(&imu); // start DMA read of IMU data. Interrupt will trigger when data is ready
-        if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by dma interrupt when IMU data is ready
-        //icm42688_parse_data(&imu);
-        //int16_t raw_gz = (int16_t)((imu.rx_buf[11] << 8) | imu.rx_buf[12]);
-        // LSB sensitivity at ±2000dps full scale = 16.4 LSB/dps
-        //gz = (float)raw_gz / 16.4f;
+        icm42688_start_dma_read(&imu); // start DMA read of IMU data. Interrupt will trigger when data is ready
+        if(ulTaskNotifyTake( pdTRUE, 2 )) { // block until notified by dma interrupt when IMU data is ready
+          icm42688_parse_data(&imu);
+          int16_t raw_gz = (int16_t)((imu.rx_buf[11] << 8) | imu.rx_buf[12]);
+          // LSB sensitivity at ±2000dps full scale = 16.4 LSB/dps
+          gz = (float)raw_gz / 16.4f;
+        } 
+        else { enable_imu = false;} // no imu data   
     }
+    
+    if(!enable_encoder && !enable_imu)
+    {
+      vr = 0.0f;
+      vl = 0.0f; // TODO get motor speeds
+    }
+
+    if(enable_imu && enable_encoder){
+      float d = (encoder1_delta - encoder2_delta) * 3.14f * 0.007f;  // d = 2 * pi * r
+      kalman_predict_w_sensor(d, gz);
+    }
+    else if(enable_encoder){
+      float d = (encoder1_delta - encoder2_delta) * 3.14f * 0.007f;
+      float w = 2.0f * (encoder2_delta - encoder1_delta) /  0.015 * 3.14f * 0.007f;   
+      kalman_predict_w_sensor(d, w);
+    }
+    else{
+      kalman_predict_w_model(vl, vr);
+    }
+
+    kalman_get_pose(pose);
+
+
 
 
     osDelay(100);
