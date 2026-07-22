@@ -86,7 +86,8 @@ Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi.c \
 Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c \
 Drivers/CMSIS/DSP/Source/MatrixFunctions/MatrixFunctions.c \
 Drivers/ICM42688_IMU/icm42688.c \
-Drivers/localization/kalman_filter.c
+Drivers/localization/kalman_filter.c \
+Drivers/ros2_communication/ros2_communication.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -103,7 +104,7 @@ C_SOURCES += micro_ros_stm32cubemx_utils/extra_sources/microros_time.c
 # C_SOURCES += micro_ros_stm32cubemx_utils/extra_sources/microros_transports/dma_transport.c
 #C_SOURCES += micro_ros_stm32cubemx_utils/extra_sources/microros_transports/it_transport.c # Second best option for transport
 #C_SOURCES += micro_ros_stm32cubemx_utils/extra_sources/microros_transports/custom_transport.c # Gemini_code for dma_transport with newer h533re mcu
-C_SOURCES += Core/Src/custom_transport.c
+C_SOURCES += Drivers/ros2_communication/custom_transport.c 
 
 #######################################
 # binaries
@@ -172,7 +173,8 @@ C_INCLUDES =  \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM33_NTZ/non_secure \
 -IDrivers/ICM42688_IMU \
--IDrivers/localization
+-IDrivers/localization \
+-IDrivers/ros2_communication
 
 C_INCLUDES += -Imicro_ros_stm32cubemx_utils/microros_static_library/libmicroros/microros_include
 

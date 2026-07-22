@@ -38,6 +38,7 @@
 #include <rmw_microros/rmw_microros.h>
 
 #include <std_msgs/msg/int32.h>
+#include <geometry_msgs/msg/pose.h>
 
 //#include "arm_math.h"
 
@@ -178,6 +179,7 @@ void StartURosTask(void *argument)
 
     rcl_publisher_t publisher;
     std_msgs__msg__Int32 msg;
+    geometry_msgs__msg__Pose pose_msg;
     rclc_support_t support;
     rcl_allocator_t allocator;
     rcl_node_t node;
@@ -188,15 +190,22 @@ void StartURosTask(void *argument)
     rclc_support_init(&support, 0, NULL, &allocator);
 
     // create node
-    rclc_node_init_default(&node, "cubemx_node", "", &support);
+    rclc_node_init_default(&node, "mcu_node", "", &support);
 
     // create publisher
     rclc_publisher_init_default(
       &publisher,
       &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
-      "cubemx_publisher");
+      "mcu_publisher");
 
+      /*
+    rclc_publisher_init_default(
+      &publisher,
+      &node,
+      ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, pose_msg , Pose),
+      "/robot_pose");
+*/
     msg.data = 0;
 
     for(;;)
