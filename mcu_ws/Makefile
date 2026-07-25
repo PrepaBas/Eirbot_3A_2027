@@ -87,7 +87,9 @@ Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c \
 Drivers/CMSIS/DSP/Source/MatrixFunctions/MatrixFunctions.c \
 Drivers/ICM42688_IMU/icm42688.c \
 Drivers/localization/kalman_filter.c \
-Drivers/ros2_communication/ros2_communication.c
+Drivers/ros2_communication/ros2_communication.c \
+Drivers/ros2_communication/pose_msg.c
+
 
 # ASM sources
 ASM_SOURCES =  \
