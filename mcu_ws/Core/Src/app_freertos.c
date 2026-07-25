@@ -59,12 +59,12 @@ const osThreadAttr_t led_Task_attributes = {
   .stack_size = 400 * 4
 };
 /* USER CODE END Variables */
-/* Definitions for uRosTask */
-osThreadId_t uRosTaskHandle;
-const osThreadAttr_t uRosTask_attributes = {
-  .name = "uRosTask",
+/* Definitions for uRosTask16384 */
+osThreadId_t uRosTask16384Handle;
+const osThreadAttr_t uRosTask16384_attributes = {
+  .name = "uRosTask16384",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 4000 * 4
+  .stack_size = 16384 * 4
 };
 /* Definitions for motorTask */
 osThreadId_t motorTaskHandle;
@@ -104,8 +104,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
-  /* creation of uRosTask */
-  uRosTaskHandle = osThreadNew(StartURosTask, NULL, &uRosTask_attributes);
+  /* creation of uRosTask16384 */
+  uRosTask16384Handle = osThreadNew(StartURosTask, NULL, &uRosTask16384_attributes);
 
   /* creation of motorTask */
   motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
@@ -128,12 +128,17 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartURosTask */
 void StartURosTask(void *argument)
 {
-  /* USER CODE BEGIN uRosTask */
+  /* USER CODE BEGIN uRosTask16384 */
   /* Infinite loop */
-  void ros2_com_task();
-  /* USER CODE END uRosTask */
+  ros2_com_task();
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END uRosTask16384 */
 }
 
+  float pose[3] = {0.0f, 0.0f, 0.0f};
 /* USER CODE BEGIN Header_StartMotorTask */
 /**
 * @brief Function implementing the motorTask thread.
@@ -145,6 +150,8 @@ void StartMotorTask(void *argument)
 {
   /* USER CODE BEGIN motorTask */
 
+  // Kalman filter Initialization
+  kalman_init();
   // IMU Initialization
   icm42688_t imu;
   icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
@@ -153,7 +160,7 @@ void StartMotorTask(void *argument)
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
 
-  uint8_t enable_encoder = 1;
+  uint8_t enable_encoder = 0;
   uint8_t enable_imu = 0;
   int32_t encoder1_count = 0;
   int32_t encoder2_count = 0;
@@ -163,7 +170,6 @@ void StartMotorTask(void *argument)
   float vr = 0.0f;
   float vl = 0.0f;
 
-  float pose[3] = {0.0f, 0.0f, 0.0f};
 
  
   /* Infinite loop */
@@ -199,7 +205,7 @@ void StartMotorTask(void *argument)
     
     if(!enable_encoder && !enable_imu)
     {
-      vr = 0.0f;
+      vr = 0.5f;
       vl = 0.0f; // TODO get motor speeds
     }
 
@@ -217,11 +223,6 @@ void StartMotorTask(void *argument)
     }
 
     kalman_get_pose(pose);
-
-
-
-
-    osDelay(100);
   }
   /* USER CODE END motorTask */
 }
@@ -232,7 +233,7 @@ void ledTask(void *argument)
 {
   for(;;)
   {
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+    HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
     osDelay(200);
   }
 }

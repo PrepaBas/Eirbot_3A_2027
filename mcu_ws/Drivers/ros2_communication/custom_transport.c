@@ -2,7 +2,7 @@
 #include <rmw_microxrcedds_c/config.h>
 
 #include "main.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "FreeRTOS.h"
 #include <unistd.h>
 #include <stdio.h>
@@ -11,24 +11,23 @@
 
 #ifdef RMW_UXRCE_TRANSPORT_CUSTOM
 
-// --- micro-ROS Transports ---
 #define UART_DMA_BUFFER_SIZE 2048
 
-static uint8_t dma_buffer[UART_DMA_BUFFER_SIZE];
+// Align DMA buffer to 4 bytes for Cortex-M33 bus alignment
+__attribute__((aligned(4))) static uint8_t dma_buffer[UART_DMA_BUFFER_SIZE];
 static size_t dma_head = 0, dma_tail = 0;
 
-// Export the GPDMA handles initialized in main.c / gpdma.c
-// Check your main.c file to ensure your RX channel matches Channel 0 or Channel 1!
 extern DMA_HandleTypeDef handle_GPDMA1_Channel0; 
 
 bool cubemx_transport_open(struct uxrCustomTransport * transport){
     UART_HandleTypeDef * uart = (UART_HandleTypeDef*) transport->args;
     
-    // Clear head and tail tracking pointers on start
     dma_head = 0;
     dma_tail = 0;
     
-    // Start GPDMA reception using the modern HAL driver layout
+    // Stop any existing DMA transfer first to reset channel registers cleanly
+    HAL_UART_DMAStop(uart);
+
     HAL_StatusTypeDef ret = HAL_UART_Receive_DMA(uart, dma_buffer, UART_DMA_BUFFER_SIZE);
     return (ret == HAL_OK);
 }
@@ -42,27 +41,42 @@ bool cubemx_transport_close(struct uxrCustomTransport * transport){
 size_t cubemx_transport_write(struct uxrCustomTransport* transport, uint8_t * buf, size_t len, uint8_t * err){
     UART_HandleTypeDef * uart = (UART_HandleTypeDef*) transport->args;
 
-    // For writing, using polling mode is dramatically safer for micro-ROS 
-    // serialization loops because it eliminates DMA resource locks.
-    // 100ms timeout is plenty for serial arrays.
-    HAL_StatusTypeDef ret = HAL_UART_Transmit(uart, buf, len, 100);
+    if (buf == NULL || len == 0) {
+        *err = 1;
+        return 0;
+    }
+
+    // Safety timeout calculation based on baudrate length
+    HAL_StatusTypeDef ret = HAL_UART_Transmit(uart, buf, (uint16_t)len, 100);
     
-    return (ret == HAL_OK) ? len : 0;
+    if (ret == HAL_OK) {
+        *err = 0;
+        return len;
+    } else {
+        *err = 1;
+        return 0;
+    }
 }
 
 size_t cubemx_transport_read(struct uxrCustomTransport* transport, uint8_t* buf, size_t len, int timeout, uint8_t* err){
     UART_HandleTypeDef * uart = (UART_HandleTypeDef*) transport->args;
 
+    if (buf == NULL || len == 0) {
+        *err = 1;
+        return 0;
+    }
+
     int ms_used = 0;
     do
     {
-        // STM32H5 GPDMA FIX: 
-        // We query the actual global GPDMA handle instead of the legacy uart->hdmarx wrapper structure.
-        // __HAL_DMA_GET_COUNTER returns the remaining bytes to transfer in the current block (BNDTR).
-        __disable_irq();
+        // Check if GPDMA has stopped/completed in Normal Mode and auto-restart
+        if (handle_GPDMA1_Channel0.State != HAL_DMA_STATE_BUSY) {
+            HAL_UART_Receive_DMA(uart, dma_buffer, UART_DMA_BUFFER_SIZE);
+        }
+
+        // Query GPDMA transfer counter safely
         uint32_t remaining = __HAL_DMA_GET_COUNTER(&handle_GPDMA1_Channel0); 
         dma_tail = UART_DMA_BUFFER_SIZE - remaining;
-        __enable_irq();
 
         if (dma_head != dma_tail) {
             break;
@@ -79,6 +93,7 @@ size_t cubemx_transport_read(struct uxrCustomTransport* transport, uint8_t* buf,
         wrote++;
     }
     
+    *err = 0;
     return wrote;
 }
 

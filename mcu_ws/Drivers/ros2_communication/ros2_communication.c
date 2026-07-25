@@ -17,9 +17,6 @@
 #include <rmw_microxrcedds_c/config.h>
 #include <rmw_microros/rmw_microros.h>
 
-#include <std_msgs/msg/int32.h>
-#include <geometry_msgs/msg/pose.h>
-
 // message includes
 #include "pose_msg.h"
 //#include "estop_msg.h"
@@ -38,6 +35,7 @@ void * microros_zero_allocate(size_t number_of_elements, size_t size_of_element,
 
 void ros2_com_task(){
 // micro-ROS configuration
+
     rmw_uros_set_custom_transport(
       true,
       (void *) &huart2,
@@ -53,12 +51,15 @@ void ros2_com_task(){
         osDelay(100);
     }
 
+    /*
     rcl_allocator_t allocator = rcutils_get_zero_initialized_allocator();
     allocator.allocate = microros_allocate;
     allocator.deallocate = microros_deallocate;
     allocator.reallocate = microros_reallocate;
     allocator.zero_allocate =  microros_zero_allocate;
-    
+    */
+   rcl_allocator_t allocator = rcl_get_default_allocator();
+
     rclc_support_t support;
     rcl_node_t node;
     rclc_support_init(&support, 0, NULL, &allocator);
@@ -85,7 +86,7 @@ void ros2_com_task(){
     // loop and end
     while(1){
         rclc_executor_spin_some(&executor, RCL_MS_TO_NS(10));
-        osDelay(10); // balance between real time precision and cpu usage;
+        osDelay(10);
     }
 
     // Clean up stack

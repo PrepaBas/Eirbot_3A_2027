@@ -30,6 +30,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stm32h5xx_hal.h"
+#include "stm32h5xx_hal.h"
 #include "stm32h5xx_hal_conf.h"
 
 #include <rcl/rcl.h>
@@ -119,7 +121,8 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
+  
+  DBGMCU->CR |= DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY;
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -247,7 +250,7 @@ void MPU_Config(void)
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsdedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCdallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
 

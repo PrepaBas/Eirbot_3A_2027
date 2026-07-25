@@ -1,5 +1,6 @@
 // C standard includes.
 #include <stdio.h>
+#include <math.h>
 #include <unistd.h>
 
 // micro-ROS includes
@@ -8,6 +9,8 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <rmw_microxrcedds_c/config.h>
+#include <rmw_microros/rmw_microros.h>
+#include <rosidl_runtime_c/string_functions.h>
 
 #include "pose_msg.h"
 
@@ -34,7 +37,12 @@ void pose_timer_callback(rcl_timer_t * timer, int64_t last_call_time){
     pose_msg.ros_msg.pose.position.x = kalman_get_x();
     pose_msg.ros_msg.pose.position.y = kalman_get_y();
     pose_msg.ros_msg.pose.position.z = 0;
-    pose_msg.ros_msg.pose.orientation.w = kalman_get_theta();
+    
+    float yaw = kalman_get_theta();
+    pose_msg.ros_msg.pose.orientation.x = 0.0f;
+    pose_msg.ros_msg.pose.orientation.y = 0.0f;
+    pose_msg.ros_msg.pose.orientation.z = sinf(yaw / 2.0f);
+    pose_msg.ros_msg.pose.orientation.w = cosf(yaw / 2.0f);
 
     // 4. Ship the data over USB
     rcl_publish(&pose_msg.publisher, &pose_msg.ros_msg, NULL);
@@ -46,10 +54,7 @@ rcl_ret_t pose_msg_init(rcl_node_t *node, rclc_support_t *support, unsigned int 
     geometry_msgs__msg__PoseStamped__init(&pose_msg.ros_msg);
 
     // set frame of msg header
-    char *frame_name = "odom";
-    pose_msg.ros_msg.header.frame_id.data = frame_name;
-    pose_msg.ros_msg.header.frame_id.size = strlen(frame_name);
-    pose_msg.ros_msg.header.frame_id.capacity = strlen(frame_name) + 1;
+    rosidl_runtime_c__String__assign(&pose_msg.ros_msg.header.frame_id, "odom");
 
     rclc_publisher_init_default(
         &pose_msg.publisher, 

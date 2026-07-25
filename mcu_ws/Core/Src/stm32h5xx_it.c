@@ -89,6 +89,11 @@ void NMI_Handler(void)
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
    while (1)
   {
+    __disable_irq();
+    while (1) {
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+    }
   }
   /* USER CODE END NonMaskableInt_IRQn 1 */
 }
@@ -101,11 +106,22 @@ void HardFault_Handler(void)
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
   /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
+    /* Inspect CFSR (Configurable Fault Status Register) */
+    volatile uint32_t cfsr = SCB->CFSR;
+    volatile uint32_t hfsr = SCB->HFSR;
+    volatile uint32_t mmar = SCB->MMFAR; // Memory Management Fault Address
+    volatile uint32_t bfar = SCB->BFAR;  // Bus Fault Address
+
+    (void)cfsr;
+    (void)hfsr;
+    (void)mmar;
+    (void)bfar;
+
+    __asm("BKPT #0"); // Pause debugger immediately on crash
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+    __disable_irq();
+    while (1) {}
     /* USER CODE END W1_HardFault_IRQn 0 */
-  }
 }
 
 /**
@@ -119,6 +135,18 @@ void MemManage_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
+    __disable_irq();
+    while (1) {
+        
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(200);
+    }
     /* USER CODE END W1_MemoryManagement_IRQn 0 */
   }
 }
@@ -134,6 +162,20 @@ void BusFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_BusFault_IRQn 0 */
+    __disable_irq();
+    while (1) {
+        
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(200);
+    }
     /* USER CODE END W1_BusFault_IRQn 0 */
   }
 }
@@ -149,6 +191,25 @@ void UsageFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
+    __disable_irq();
+    while (1) {
+        
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(50);
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
+        HAL_Delay(200);
+    }
+    
     /* USER CODE END W1_UsageFault_IRQn 0 */
   }
 }
