@@ -176,9 +176,9 @@ C_INCLUDES =  \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM33_NTZ/non_secure \
 -IDrivers/ICM42688_IMU \
 -IDrivers/localization \
--IDrivers/ros2_communication
-
-C_INCLUDES += -Imicro_ros_stm32cubemx_utils/microros_static_library/libmicroros/microros_include
+-IDrivers/ros2_communication \
+-Imicro_ros_stm32cubemx_utils/microros_static_library/libmicroros/microros_include \
+-Imicro_ros_stm32cubemx_utils/microros_static_library/libmicroros/microros_include/rcutils
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

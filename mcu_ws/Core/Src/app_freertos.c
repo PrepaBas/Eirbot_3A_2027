@@ -90,8 +90,13 @@ void ledTask(void *argument);
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-  if(USE_PRINT) huart2.Init.BaudRate = 115200;
-  IDB printf("tedjfsl\r\n");
+#ifdef USE_SERIAL_PRINTS
+    huart2.Init.BaudRate = 115200;
+    
+    huart2.hdmatx = NULL; // <--- Disables DMA association so HAL_UART_Transmit works!
+    HAL_UART_Init(&huart2);
+    printf("tedjfsl\r\n");
+#endif
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -135,10 +140,12 @@ void StartURosTask(void *argument)
 {
   /* USER CODE BEGIN uRosTask */
   /* Infinite loop */
-  ros2_com_task();
+#ifdef USE_UROS
+    ros2_com_task();
+#endif
   for(;;)
   {
-    osDelay(1);
+    osDelay(1000);
   }
   /* USER CODE END uRosTask */
 }
@@ -155,7 +162,7 @@ void StartMotorTask(void *argument)
   /* USER CODE BEGIN motorTask */
 
   // Kalman filter Initialization
-  if(USE_PRINT) printf("test print\r\n");
+  LOGPRINT("test print\r\n"); 
   kalman_init();
   
   // IMU Initialization
@@ -264,6 +271,17 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
         vTaskNotifyGiveFromISR(motorTaskHandle, &xHigherPriorityTaskWoken); // Notifie la tâche motorTask    
         portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
     }
+}
+
+int __io_putchar(int ch) {
+    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    return ch;
+}
+
+int __io_getchar(void) {
+    uint8_t ch = 0;
+    HAL_UART_Receive(&huart2, &ch, 1, HAL_MAX_DELAY);
+    return ch;
 }
 
 /* USER CODE END Application */
