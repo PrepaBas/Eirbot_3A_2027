@@ -22,6 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+// std includes
+#include <stdio.h>
+
 // Stm32 includes
 #include "stm32h5xx_hal_conf.h"
 #include "usart.h"
@@ -29,6 +32,7 @@
 #include "tim.h"
 
 // Driver includes
+#include "params.h"
 #include "icm42688.h"
 #include "kalman_filter.h"
 #include "ros2_communication.h"
@@ -59,10 +63,10 @@ const osThreadAttr_t led_Task_attributes = {
   .stack_size = 400 * 4
 };
 /* USER CODE END Variables */
-/* Definitions for uRosTask16384 */
-osThreadId_t uRosTask16384Handle;
-const osThreadAttr_t uRosTask16384_attributes = {
-  .name = "uRosTask16384",
+/* Definitions for uRosTask */
+osThreadId_t uRosTaskHandle;
+const osThreadAttr_t uRosTask_attributes = {
+  .name = "uRosTask",
   .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 16384 * 4
 };
@@ -86,7 +90,8 @@ void ledTask(void *argument);
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-
+  if(USE_PRINT) huart2.Init.BaudRate = 115200;
+  IDB printf("tedjfsl\r\n");
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -104,8 +109,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
-  /* creation of uRosTask16384 */
-  uRosTask16384Handle = osThreadNew(StartURosTask, NULL, &uRosTask16384_attributes);
+  /* creation of uRosTask */
+  uRosTaskHandle = osThreadNew(StartURosTask, NULL, &uRosTask_attributes);
 
   /* creation of motorTask */
   motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
@@ -128,17 +133,16 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartURosTask */
 void StartURosTask(void *argument)
 {
-  /* USER CODE BEGIN uRosTask16384 */
+  /* USER CODE BEGIN uRosTask */
   /* Infinite loop */
   ros2_com_task();
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END uRosTask16384 */
+  /* USER CODE END uRosTask */
 }
 
-  float pose[3] = {0.0f, 0.0f, 0.0f};
 /* USER CODE BEGIN Header_StartMotorTask */
 /**
 * @brief Function implementing the motorTask thread.
@@ -151,7 +155,9 @@ void StartMotorTask(void *argument)
   /* USER CODE BEGIN motorTask */
 
   // Kalman filter Initialization
+  if(USE_PRINT) printf("test print\r\n");
   kalman_init();
+  
   // IMU Initialization
   icm42688_t imu;
   icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
@@ -160,8 +166,9 @@ void StartMotorTask(void *argument)
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
 
-  uint8_t enable_encoder = 0;
-  uint8_t enable_imu = 0;
+  float pose[3] = {0.0f, 0.0f, 0.0f};
+  uint8_t enable_encoder = USE_ENCODERS;
+  uint8_t enable_imu = USE_IMU;
   int32_t encoder1_count = 0;
   int32_t encoder2_count = 0;
   int32_t encoder1_delta = 0;
