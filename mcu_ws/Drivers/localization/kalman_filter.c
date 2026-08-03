@@ -1,5 +1,6 @@
 #include "kalman_filter.h"
 #include "matrix_functions.h"
+#include "params.h"
 // Standart unit is milimeter [mm] and radian [rad]
 
 float X_f32[3] = {
@@ -98,7 +99,6 @@ int kalman_predict_w_model(float vl, float vr){
     arm_mat_mult_f32(&F, &temp1_3x3, &temp2_3x3); // tmp1 = F * P * Ft
     arm_mat_add_f32(&temp2_3x3, &Q, &P); 
     
-
     X.pData[0] += (vl + vr) / 2.0f * cosf(X.pData[2]) * ASSERV_PERIOD; // x
     X.pData[1] += (vl + vr) / 2.0f * sinf(X.pData[2]) * ASSERV_PERIOD; // y
     X.pData[2] += (vr - vl) / WHEEL_BASE * ASSERV_PERIOD;              // theta
@@ -174,7 +174,7 @@ int kalman_correct_w_lidar(float x_lidar, float y_lidar, float theta_lidar){
 }
 
 void kalman_get_pose(float* dest_pose_array){
-    memcpy(X.pData, dest_pose_array, 3 * sizeof(float));
+    memcpy(dest_pose_array, X.pData, 3 * sizeof(float));
 }
 
 float kalman_get_x(){

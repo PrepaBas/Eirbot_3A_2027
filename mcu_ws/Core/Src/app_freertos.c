@@ -162,7 +162,7 @@ void StartMotorTask(void *argument)
   /* USER CODE BEGIN motorTask */
 
   // Kalman filter Initialization
-  LOGPRINT("test print\r\n"); 
+  LOGPRINT("MotorTask Start\r\n"); 
   kalman_init();
   
   // IMU Initialization
@@ -172,6 +172,7 @@ void StartMotorTask(void *argument)
   // Encoder Initialization
   HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
+  HAL_TIM_Base_Start_IT(&htim6); // PA0 & PA1
 
   float pose[3] = {0.0f, 0.0f, 0.0f};
   uint8_t enable_encoder = USE_ENCODERS;
@@ -184,12 +185,9 @@ void StartMotorTask(void *argument)
   float vr = 0.0f;
   float vl = 0.0f;
 
-
- 
   /* Infinite loop */
   for(;;)
   {
-
     if(ulTaskNotifyTake( pdTRUE, osWaitForever )) {} // block until notified by timer interrupt every 1ms
 
     //* Read encoder counts *//
@@ -217,27 +215,30 @@ void StartMotorTask(void *argument)
         else { enable_imu = 0;} // no imu data   
     }
     
-    if(!enable_encoder && !enable_imu)
+    if((!enable_encoder) && (!enable_imu))
     {
-      vr = 0.5f;
+      vr = 1.5f;
       vl = 0.0f; // TODO get motor speeds
     }
-
+    
     if(enable_imu && enable_encoder){
-      float d = (encoder1_delta - encoder2_delta) * 3.14f * 0.007f;  // d = 2 * pi * r
+      float d = (encoder1_delta - encoder2_delta) * PI * WHEEL_RADIUS; 
       kalman_predict_w_sensor(d, gz);
     }
     else if(enable_encoder){
-      float d = (encoder1_delta - encoder2_delta) * 3.14f * 0.007f;
-      float w = 2.0f * (encoder2_delta - encoder1_delta) /  0.015 * 3.14f * 0.007f;   
+      float d = (encoder1_delta - encoder2_delta) * PI * WHEEL_RADIUS;
+      float w = 2.0f * (encoder2_delta - encoder1_delta) / WHEEL_BASE * PI * WHEEL_RADIUS;   
       kalman_predict_w_sensor(d, w);
     }
     else{
       kalman_predict_w_model(vl, vr);
     }
 
-    kalman_get_pose(pose);
+    kalman_get_pose(pose); 
+    LOGPRINT("Pose: %f %f %f | Speed: %f %f\r\n", pose[0], pose[1], pose[2], vl, vr); 
+    
   }
+  
   /* USER CODE END motorTask */
 }
 
