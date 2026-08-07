@@ -51,14 +51,14 @@ void ros2_com_task(){
         osDelay(100);
     }
 
-    /*
+    
     rcl_allocator_t allocator = rcutils_get_zero_initialized_allocator();
     allocator.allocate = microros_allocate;
     allocator.deallocate = microros_deallocate;
     allocator.reallocate = microros_reallocate;
     allocator.zero_allocate =  microros_zero_allocate;
-    */
-   rcl_allocator_t allocator = rcl_get_default_allocator();
+    
+   //rcl_allocator_t allocator = rcl_get_default_allocator();
 
     rclc_support_t support;
     rcl_node_t node;
@@ -76,7 +76,7 @@ void ros2_com_task(){
 
     // Executor definition
     rclc_executor_t executor;
-    unsigned int num_handles = 2; 
+    unsigned int num_handles = 3; // pose | pose timer | log
     rclc_executor_init(&executor, &support.context, num_handles, &allocator);
 
     

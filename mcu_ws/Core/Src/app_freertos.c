@@ -184,6 +184,8 @@ void StartMotorTask(void *argument)
   float gz = 0.0f;
   float vr = 0.0f;
   float vl = 0.0f;
+  float v = 0.0f; 
+  float w = 0.0f;
 
   float first_goal[3] = {1.0f, 0.5f, -3*PI/2.0f};
   
@@ -220,8 +222,8 @@ void StartMotorTask(void *argument)
     
     if((!enable_encoder) && (!enable_imu))
     {
-      //vr = 0.5f;
-      //vl = 0.0f; // TODO get motor speeds
+      //wr = 0.5f;
+      //wl = 0.0f; // TODO get motor speeds
     }
     
     if(enable_imu && enable_encoder){
@@ -229,9 +231,9 @@ void StartMotorTask(void *argument)
       kalman_predict_w_sensor(d, gz);
     }
     else if(enable_encoder){
-      float d = (encoder1_delta - encoder2_delta) * PI * WHEEL_RADIUS;
-      float w = 2.0f * (encoder2_delta - encoder1_delta) / WHEEL_BASE * PI * WHEEL_RADIUS;   
-      kalman_predict_w_sensor(d, w);
+      float d_enc = (encoder1_delta - encoder2_delta) * PI * WHEEL_RADIUS;
+      float w_enc = 2.0f * (encoder2_delta - encoder1_delta) / WHEEL_BASE * PI * WHEEL_RADIUS;   
+      kalman_predict_w_sensor(d_enc, w_enc);
     }
     else{
       kalman_predict_w_model(vl, vr);
@@ -240,8 +242,7 @@ void StartMotorTask(void *argument)
     kalman_get_pose(pose); 
     //LOGPRINT("Pose: %d %d %d | Speed: %d %d", (int)pose[0], (int)pose[1], (int)pose[2], (int)vl, (int)vr); osDelay(100);
     //LOGPRINT("Pose: %f %f %f | Speed: %f %f", pose[0], pose[1], pose[2], vl, vr); 
-    //osDelay(1000);
-    controller_run(pose, &vl, &vr);
+    controller_run(pose, &v, &w);
     static int counter = 0;
     //make a square
     if(is_controller_free()){
@@ -291,6 +292,9 @@ void StartMotorTask(void *argument)
     counter++;
     if(counter > 7) counter = 0;
     }
+
+    vl = (v - w / 2.0f * WHEEL_BASE);
+    vr = (v + w / 2.0f * WHEEL_BASE);
   }
   
   /* USER CODE END motorTask */

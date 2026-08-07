@@ -90,6 +90,7 @@ int kalman_set_state(float x, float y, float theta){
     return 0;
 }
 
+// TODO : use linear/angular or wheel speeds?
 int kalman_predict_w_model(float vl, float vr){
     F.pData[2] =  -(vl + vr) / 2.0f * sinf(X.pData[2]) * ASSERV_PERIOD;
     F.pData[5] = (vl + vr) / 2.0f * cosf(X.pData[2]) * ASSERV_PERIOD;
