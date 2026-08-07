@@ -18,6 +18,7 @@
 #include <rmw_microros/rmw_microros.h>
 
 // message includes
+#include "log_msg.h"
 #include "pose_msg.h"
 //#include "estop_msg.h"
 //#include "srv_path_follow.h"
@@ -70,6 +71,7 @@ void ros2_com_task(){
 
 
     ///* INIT functions of various msg. */// 
+    log_msg_init(&node);
     pose_msg_init(&node, &support, 100);
 
     // Executor definition
@@ -92,4 +94,5 @@ void ros2_com_task(){
     rclc_executor_fini(&executor);
     rcl_node_fini(&node);
     rclc_support_fini(&support);
+    log_msg_fini(&node);
 }

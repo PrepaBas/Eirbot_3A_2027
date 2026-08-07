@@ -3,6 +3,7 @@
 #include "params.h"
 // Standart unit is milimeter [mm] and radian [rad]
 
+
 float X_f32[3] = {
     0.0f, 0.0f, 0.0f
 }; 
@@ -174,6 +175,8 @@ int kalman_correct_w_lidar(float x_lidar, float y_lidar, float theta_lidar){
 }
 
 void kalman_get_pose(float* dest_pose_array){
+    while(X.pData[2] > PI) X.pData[2] -= 2*PI;
+    while(X.pData[2] < -PI) X.pData[2] += 2*PI;
     memcpy(dest_pose_array, X.pData, 3 * sizeof(float));
 }
 
@@ -184,5 +187,7 @@ float kalman_get_y(){
     return X.pData[1];
 }
 float kalman_get_theta(){
+    while(X.pData[2] > PI) X.pData[2] -= 2*PI;
+    while(X.pData[2] < -PI) X.pData[2] += 2*PI;
     return X.pData[2];
 }

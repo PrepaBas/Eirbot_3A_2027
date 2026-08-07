@@ -36,6 +36,7 @@
 #include "icm42688.h"
 #include "kalman_filter.h"
 #include "ros2_communication.h"
+#include "controller.h"
 // #include "kalman_filter.h"
 /* USER CODE END Includes */
 
@@ -68,14 +69,14 @@ osThreadId_t uRosTaskHandle;
 const osThreadAttr_t uRosTask_attributes = {
   .name = "uRosTask",
   .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 16384 * 4
+  .stack_size = 16384 
 };
 /* Definitions for motorTask */
 osThreadId_t motorTaskHandle;
 const osThreadAttr_t motorTask_attributes = {
   .name = "motorTask",
   .priority = (osPriority_t) osPriorityRealtime,
-  .stack_size = 1000 * 4
+  .stack_size = 1000
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -160,11 +161,10 @@ void StartURosTask(void *argument)
 void StartMotorTask(void *argument)
 {
   /* USER CODE BEGIN motorTask */
-
+  kalman_init(); // call before uRos start sending pose msg
+  osDelay(1000);
   // Kalman filter Initialization
-  LOGPRINT("MotorTask Start\r\n"); 
-  kalman_init();
-  
+  LOGPRINT("MotorTask Start"); 
   // IMU Initialization
   icm42688_t imu;
   icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
@@ -185,6 +185,9 @@ void StartMotorTask(void *argument)
   float vr = 0.0f;
   float vl = 0.0f;
 
+  float first_goal[3] = {1.0f, 0.5f, -3*PI/2.0f};
+  
+  osDelay(200);
   /* Infinite loop */
   for(;;)
   {
@@ -217,8 +220,8 @@ void StartMotorTask(void *argument)
     
     if((!enable_encoder) && (!enable_imu))
     {
-      vr = 1.5f;
-      vl = 0.0f; // TODO get motor speeds
+      //vr = 0.5f;
+      //vl = 0.0f; // TODO get motor speeds
     }
     
     if(enable_imu && enable_encoder){
@@ -235,8 +238,59 @@ void StartMotorTask(void *argument)
     }
 
     kalman_get_pose(pose); 
-    LOGPRINT("Pose: %f %f %f | Speed: %f %f\r\n", pose[0], pose[1], pose[2], vl, vr); 
-    
+    //LOGPRINT("Pose: %d %d %d | Speed: %d %d", (int)pose[0], (int)pose[1], (int)pose[2], (int)vl, (int)vr); osDelay(100);
+    //LOGPRINT("Pose: %f %f %f | Speed: %f %f", pose[0], pose[1], pose[2], vl, vr); 
+    //osDelay(1000);
+    controller_run(pose, &vl, &vr);
+    static int counter = 0;
+    //make a square
+    if(is_controller_free()){
+      LOGPRINT("Free controller");
+      switch(counter){
+        case 0:
+          LOGPRINT("First line");
+          float new_goal[3] = {2, 0.0f, 0};
+          controller_start(CONTROLLER_TYPE_LINE_P, new_goal);
+          break;
+        case 1:
+          LOGPRINT("First turn");
+          float new_goal2[3] = {2, 0, PI/2.0f};
+          controller_start(CONTROLLER_TYPE_ROT_P, new_goal2);
+          break;
+        case 2:
+          LOGPRINT("Second line");
+          float new_goal3[3] = {2, 2, PI/2.0f};
+          controller_start(CONTROLLER_TYPE_LINE_P, new_goal3);
+          break;
+        case 3:
+          LOGPRINT("Second turn");
+          float new_goal4[3] = {2, 2, PI};
+          controller_start(CONTROLLER_TYPE_ROT_P, new_goal4);
+          break;
+        case 4:
+          LOGPRINT("Third line");
+          float new_goal5[3] = {-3, 2, PI};
+          controller_start(CONTROLLER_TYPE_LINE_P, new_goal5);
+          break;
+        case 5:
+          LOGPRINT("Third turn");
+          float new_goal6[3] = {-3, 2, -PI/2.0f};
+          controller_start(CONTROLLER_TYPE_ROT_P, new_goal6);
+          break;
+        case 6 :
+          LOGPRINT("Fourth line");
+          float new_goal7[3] = {-3, 0, -PI/2.0f};
+          controller_start(CONTROLLER_TYPE_LINE_P, new_goal7);
+          break;
+        case 7:
+          LOGPRINT("Fourth turn");
+          float new_goal8[3] = {-3, 0, 0};
+          controller_start(CONTROLLER_TYPE_ROT_P, new_goal8);
+          break;
+      }
+    counter++;
+    if(counter > 7) counter = 0;
+    }
   }
   
   /* USER CODE END motorTask */
@@ -274,6 +328,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
     }
 }
 
+#ifdef USE_SERIAL_PRINTS
 int __io_putchar(int ch) {
     HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
     return ch;
@@ -284,6 +339,7 @@ int __io_getchar(void) {
     HAL_UART_Receive(&huart2, &ch, 1, HAL_MAX_DELAY);
     return ch;
 }
+#endif
 
 /* USER CODE END Application */
 

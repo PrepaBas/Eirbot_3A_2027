@@ -1,7 +1,6 @@
 #ifndef KALMAN_FILTER_H
 #define KALMAN_FILTER_H
 
-#define WHEEL_BASE 0.15f // Distance between the wheels in meters
 #define ASSERV_PERIOD 0.001f // Control loop period in seconds
 
 int kalman_init();
