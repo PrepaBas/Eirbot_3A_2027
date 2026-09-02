@@ -1,3 +1,4 @@
+// IA generated
 #include "icm42688.h"
 
 // --- PRIVATE HELPER FUNCTIONS ---

@@ -85,8 +85,8 @@ Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_i2c_ex.c \
 Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi.c \
 Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c \
 Drivers/CMSIS/DSP/Source/MatrixFunctions/MatrixFunctions.c \
-Drivers/ICM42688_IMU/icm42688.c \
-Drivers/localization/kalman_filter.c \
+Drivers/localisation/icm42688.c \
+Drivers/localisation/kalman_filter.c \
 Drivers/ros2_communication/ros2_communication.c \
 Drivers/ros2_communication/log_msg.c \
 Drivers/ros2_communication/pose_msg.c \
@@ -176,8 +176,7 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/RTOS2/Include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM33_NTZ/non_secure \
--IDrivers/ICM42688_IMU \
--IDrivers/localization \
+-IDrivers/localisation \
 -IDrivers/ros2_communication \
 -IDrivers/controller \
 -Imicro_ros_stm32cubemx_utils/microros_static_library/libmicroros/microros_include
