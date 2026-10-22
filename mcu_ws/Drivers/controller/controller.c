@@ -23,8 +23,6 @@ int controller_soft_stop();
 
 //* GLOBAL VARIABLES *//
 // general
-float wheel_base = WHEEL_BASE;
-float wheel_radius = WHEEL_RADIUS;
 float pose[3] = {0.0f, 0.0f, 0.0f};
 float linear_velocity = 0.0f;
 float angular_velocity = 0.0f;
@@ -33,25 +31,25 @@ float old_angular_velocity = 0.0f;
 float time_step = 0.001f;
 
 // p rot controller
-float kp_rot = 1.2f;
-float max_rot_speed = 1.0f;
-float max_rot_accel = 1.8f;
+float kp_rot = 1.8f;
+float max_rot_speed = 3.14f;
+float max_rot_accel = 6.28f;
 
 // p line controller
 float kp_line = 1.5f;
-float max_line_linear_speed = 1.0f;
-float max_line_linear_accel = 1.5f;
+float max_line_linear_speed = 0.5f;
+float max_line_linear_accel = 1.0f;
 
 
 // p goto controller
-float kp_goto_linear = 1.0f;
-float kp_goto_angular = 0.9f;
-float max_goto_linear_speed = 1.0f;
-float max_goto_angular_speed = 0.2f;
-float max_goto_linear_accel = 1.5f;
-float max_goto_angular_accel = 0.3f;
+float kp_goto_linear = 0.4f;
+float kp_goto_angular = 1.8f;
+float max_goto_linear_speed = 0.5f;
+float max_goto_angular_speed = 3.14f;
+float max_goto_linear_accel = 0.7f;
+float max_goto_angular_accel = 6.28f;
 
-// sorf stop
+// soft stop
 float max_sstop_linear_accel = 1.5f;
 float max_sstop_angular_accel = 0.9f;
 
@@ -136,7 +134,7 @@ int controller_start(enum CONTROLLER_TYPE controller_type, float *new_goal){
 
 int controller_run(float *input_pose, float *output_linear_velocity, float *output_angular_velocity){
     state = next_state;
-    print_state();
+    // print_state();
     for(int i = 0; i<3; i++)
     {
         pose[i] = input_pose[i];
@@ -246,37 +244,65 @@ int controller_rot_p_run(){
 }
 
 int controller_line_p_run(){
-    float d = sqrt(pow(pose[0] - goal[0], 2) + pow(pose[1] - goal[1], 2));;
-    if((d < 0.1f) && (d > -0.1f)) return 1;
+	static float old_d = -67.0f;
+    float d = sqrt(pow(pose[0] - goal[0], 2) + pow(pose[1] - goal[1], 2));
+    if(old_d < -66.1f) old_d = d + 1.0f;
+    else {
+    	if(old_d < d) {
+    		old_d = -67.0f;
+    		return 1;
+		}
+    	old_d = d;
+    }
+    if((d < 0.005f) && (d > -0.005f)) {
+    	old_d = -67.0f;
+    	return 1;
+    }
     float line_command = p_controller_command(d, 0, max_line_linear_speed, kp_line);
     linear_velocity = p_controller_cap_accel(line_command, old_linear_velocity, max_line_linear_accel, time_step);
     old_linear_velocity = linear_velocity;
     angular_velocity = 0.0f;
     return 0;
 }
-
+int step = 0;
 int controller_goto_p_run(){
     float d = sqrt(pow(pose[0] - goal[0], 2) + pow(pose[1] - goal[1], 2));
-    if(d > 0.005f)
+    if(d > 0.05f)
     {
-      float u_d = p_controller_command(d, -max_goto_linear_speed, max_goto_linear_speed, kp_goto_linear);
-      u_d = p_controller_cap_accel(u_d, old_linear_velocity, max_goto_linear_accel, time_step);
-      old_linear_velocity = u_d;
-      float u_theta = p_controller_command(restrict_angle(atan2f(goal[1] - pose[1], goal[0] - pose[0]) - pose[2]), -max_goto_angular_speed, max_goto_angular_speed, kp_goto_angular);
-      u_theta = p_controller_cap_accel(u_theta, old_angular_velocity, max_goto_angular_accel, time_step);
-      old_angular_velocity = u_theta;
 
-      linear_velocity = u_d;
-      angular_velocity = u_theta;
+    	float error_theta = restrict_angle(atan2f(goal[1] - pose[1], goal[0] - pose[0]) - pose[2]);
+		if(((error_theta > 0.1f) || (error_theta < -0.1f)) && (step == 0))
+		{
+			float rot_command = p_controller_command(error_theta, -max_rot_speed, max_rot_speed, kp_rot);
+			angular_velocity = p_controller_cap_accel(rot_command, old_angular_velocity, max_rot_accel, time_step);
+			old_angular_velocity = angular_velocity;
+			linear_velocity = 0.0f;
+		}
+		else
+		{
+			step = 1;
+		  float u_d = p_controller_command(d, -max_goto_linear_speed, max_goto_linear_speed, kp_goto_linear);
+		  u_d = p_controller_cap_accel(u_d, old_linear_velocity, max_goto_linear_accel, time_step);
+		  old_linear_velocity = u_d;
+		  float u_theta = p_controller_command(restrict_angle(atan2f(goal[1] - pose[1], goal[0] - pose[0]) - pose[2]), -max_goto_angular_speed, max_goto_angular_speed, kp_goto_angular);
+		  u_theta = p_controller_cap_accel(u_theta, old_angular_velocity, max_goto_angular_accel, time_step);
+		  old_angular_velocity = u_theta;
+
+		  linear_velocity = u_d;
+		  angular_velocity = u_theta;
+		}
     }
-    else if(d > 1000)//0.050f)
+    else if(d > 0.005f)
     {
       float u_d = p_controller_command(d, -max_goto_linear_speed, max_goto_linear_speed, 0.2f);
       u_d = p_controller_cap_accel(u_d, old_linear_velocity, max_goto_linear_accel, time_step);
       old_linear_velocity = u_d;
     }
-    else return 1;
-
+    else {
+    	step = 0;
+    	return 1;
+    }
+    step = 0;
     return 0;
 }
 

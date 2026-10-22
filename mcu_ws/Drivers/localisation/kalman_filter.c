@@ -1,5 +1,5 @@
 #include "kalman_filter.h"
-#include "matrix_functions.h"
+#include "arm_math.h"
 #include "params.h"
 // Standart unit is milimeter [mm] and radian [rad]
 
@@ -91,19 +91,23 @@ int kalman_set_state(float x, float y, float theta){
 }
 
 // TODO : use linear/angular or wheel speeds?
-int kalman_predict_w_model(float vl, float vr){
-    F.pData[2] =  -(vl + vr) / 2.0f * sinf(X.pData[2]) * ASSERV_PERIOD;
-    F.pData[5] = (vl + vr) / 2.0f * cosf(X.pData[2]) * ASSERV_PERIOD;
+int kalman_predict_w_model(float v, float w) {
+    const float theta = X.pData[2];
+    const float c = cosf(theta);
+    const float s = sinf(theta);
 
-    arm_mat_trans_f32(&F, &temp2_3x3); // tmp1 = Ft
+    // Jacobian of the motion model w.r.t. state (F is initialised to identity)
+    F.pData[2] = -v * s * ASSERV_PERIOD;  // d x / d theta
+    F.pData[5] =  v * c * ASSERV_PERIOD;  // d y / d theta
 
-    arm_mat_mult_f32(&P, &temp2_3x3, &temp1_3x3); // tmp2 = P * Ft
-    arm_mat_mult_f32(&F, &temp1_3x3, &temp2_3x3); // tmp1 = F * P * Ft
-    arm_mat_add_f32(&temp2_3x3, &Q, &P); 
-    
-    X.pData[0] += (vl + vr) / 2.0f * cosf(X.pData[2]) * ASSERV_PERIOD; // x
-    X.pData[1] += (vl + vr) / 2.0f * sinf(X.pData[2]) * ASSERV_PERIOD; // y
-    X.pData[2] += (vr - vl) / WHEEL_BASE * ASSERV_PERIOD;              // theta
+    arm_mat_trans_f32(&F, &temp2_3x3);               // temp2 = Ft
+    arm_mat_mult_f32(&P, &temp2_3x3, &temp1_3x3);    // temp1 = P * Ft
+    arm_mat_mult_f32(&F, &temp1_3x3, &temp2_3x3);    // temp2 = F * P * Ft
+    arm_mat_add_f32(&temp2_3x3, &Q, &P);             // P = F * P * Ft + Q
+
+    X.pData[0] += v * c * ASSERV_PERIOD;  // x
+    X.pData[1] += v * s * ASSERV_PERIOD;  // y
+    X.pData[2] += w * ASSERV_PERIOD;      // theta
 
     return 0;
 }
@@ -124,7 +128,7 @@ int kalman_predict_w_encoders(float d_l, float d_r){
 
     X.pData[0] += d * cosf(X.pData[2]); // x
     X.pData[1] += d * sinf(X.pData[2]); // y
-    X.pData[2] += w * ASSERV_PERIOD;    // theta
+    X.pData[2] += w;    // theta
 
     return 0;
 }

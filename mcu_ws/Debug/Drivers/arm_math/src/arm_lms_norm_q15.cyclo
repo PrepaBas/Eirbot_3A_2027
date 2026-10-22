@@ -1,0 +1,2 @@
+../Drivers/arm_math/src/arm_math.h:561:28:arm_recip_q15	3
+../Drivers/arm_math/src/arm_lms_norm_q15.c:74:6:arm_lms_norm_q15	8

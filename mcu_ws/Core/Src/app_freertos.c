@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 // std includes
 #include <stdio.h>
+#include <stdint.h>
 
 // Stm32 includes
 #include "stm32h5xx_hal_conf.h"
@@ -35,7 +36,6 @@
 #include "params.h"
 #include "icm42688.h"
 #include "kalman_filter.h"
-#include "ros2_communication.h"
 #include "controller.h"
 // #include "kalman_filter.h"
 /* USER CODE END Includes */
@@ -64,19 +64,19 @@ const osThreadAttr_t led_Task_attributes = {
   .stack_size = 400 * 4
 };
 /* USER CODE END Variables */
-/* Definitions for uRosTask */
-osThreadId_t uRosTaskHandle;
-const osThreadAttr_t uRosTask_attributes = {
-  .name = "uRosTask",
-  .priority = (osPriority_t) osPriorityNormal,
-  .stack_size = 16384 
+/* Definitions for ledTask */
+osThreadId_t ledTaskHandle;
+const osThreadAttr_t ledTask_attributes = {
+  .name = "ledTask",
+  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 128 * 4
 };
 /* Definitions for motorTask */
 osThreadId_t motorTaskHandle;
 const osThreadAttr_t motorTask_attributes = {
   .name = "motorTask",
   .priority = (osPriority_t) osPriorityRealtime,
-  .stack_size = 1000
+  .stack_size = 1000 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -115,8 +115,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
-  /* creation of uRosTask */
-  uRosTaskHandle = osThreadNew(StartURosTask, NULL, &uRosTask_attributes);
+  /* creation of ledTask */
+  ledTaskHandle = osThreadNew(StartLedTask, NULL, &ledTask_attributes);
 
   /* creation of motorTask */
   motorTaskHandle = osThreadNew(StartMotorTask, NULL, &motorTask_attributes);
@@ -130,25 +130,29 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_EVENTS */
 
 }
-/* USER CODE BEGIN Header_StartURosTask */
+/* USER CODE BEGIN Header_StartLedTask */
 /**
-* @brief Function implementing the uRosTask thread.
+* @brief Function implementing the ledTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartURosTask */
-void StartURosTask(void *argument)
+/* USER CODE END Header_StartLedTask */
+void StartLedTask(void *argument)
 {
-  /* USER CODE BEGIN uRosTask */
+  /* USER CODE BEGIN ledTask */
   /* Infinite loop */
-#ifdef USE_UROS
-    ros2_com_task();
-#endif
   for(;;)
   {
-    osDelay(1000);
+	// while(1){osDelay(1000);}
+    osDelay(100);
+    float pose[3] = {};
+	kalman_get_pose(pose);
+	long int x = pose [0] * 1000;
+	long int y = pose [1] * 1000;
+	long int t = pose [2] * 1000;
+	LOGPRINT(">x:%ld\n>y:%ld\n>theta:%ld\n>pose:%ld:%ld|xy", x, y, t, x, y);
   }
-  /* USER CODE END uRosTask */
+  /* USER CODE END ledTask */
 }
 
 /* USER CODE BEGIN Header_StartMotorTask */
@@ -170,9 +174,11 @@ void StartMotorTask(void *argument)
   icm42688_init(&imu, &hspi2, cs_imu_GPIO_Port, cs_imu_Pin); // CS: PB10 | SCK:PB2 | MOSI:PC1 | MISO:PC2
 
   // Encoder Initialization
-  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL); // PA15 & PB3
-  HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL); // PA0 & PA1
-  HAL_TIM_Base_Start_IT(&htim6); // PA0 & PA1
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_1); // PA15 & PB3
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_2); // PA15 & PB3
+  HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_1); // PA0 & PA1
+  HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_2); // PA0 & PA1
+  HAL_TIM_Base_Start_IT(&htim6);
 
   float pose[3] = {0.0f, 0.0f, 0.0f};
   uint8_t enable_encoder = USE_ENCODERS;
@@ -182,14 +188,12 @@ void StartMotorTask(void *argument)
   int32_t encoder1_delta = 0;
   int32_t encoder2_delta = 0;  
   float gz = 0.0f;
-  float vr = 0.0f;
-  float vl = 0.0f;
   float v = 0.0f; 
   float w = 0.0f;
 
-  float first_goal[3] = {1.0f, 0.5f, -3*PI/2.0f};
-  
-  osDelay(200);
+  const int uart_downsample = 100;
+
+  osDelay(1000);
   /* Infinite loop */
   for(;;)
   {
@@ -231,12 +235,12 @@ void StartMotorTask(void *argument)
       kalman_predict_w_sensor(d, gz);
     }
     else if(enable_encoder){
-      float d_enc = (encoder1_delta - encoder2_delta) * PI * WHEEL_RADIUS;
-      float w_enc = 2.0f * (encoder2_delta - encoder1_delta) / WHEEL_BASE * PI * WHEEL_RADIUS;   
-      kalman_predict_w_sensor(d_enc, w_enc);
+    	float dl = 2.0f * (float)encoder1_delta / 4096.0f * PI * WHEEL_RADIUS / 4.0f;
+    	float dr = 2.0f * (float)encoder2_delta / 4096.0f * PI * WHEEL_RADIUS / 4.0f;
+        kalman_predict_w_encoders(dl, dr);
     }
     else{
-      kalman_predict_w_model(vl, vr);
+      kalman_predict_w_model(v, w);
     }
 
     kalman_get_pose(pose); 
@@ -250,51 +254,47 @@ void StartMotorTask(void *argument)
       switch(counter){
         case 0:
           LOGPRINT("First line");
-          float new_goal[3] = {2, 0.0f, 0};
-          controller_start(CONTROLLER_TYPE_LINE_P, new_goal);
+          float new_goal[3] = {1.8f, 0.0f, PI/2.0f};
+          controller_start(CONTROLLER_TYPE_GOTO_P, new_goal);
           break;
         case 1:
           LOGPRINT("First turn");
-          float new_goal2[3] = {2, 0, PI/2.0f};
-          controller_start(CONTROLLER_TYPE_ROT_P, new_goal2);
+          float new_goal2[3] = {1.8f, 0.8f, PI};
+          controller_start(CONTROLLER_TYPE_GOTO_P, new_goal2);
           break;
         case 2:
           LOGPRINT("Second line");
-          float new_goal3[3] = {2, 2, PI/2.0f};
-          controller_start(CONTROLLER_TYPE_LINE_P, new_goal3);
+          float new_goal3[3] = {0.0f, 0.8f, -PI/2.0f};
+          controller_start(CONTROLLER_TYPE_GOTO_P, new_goal3);
           break;
         case 3:
           LOGPRINT("Second turn");
-          float new_goal4[3] = {2, 2, PI};
-          controller_start(CONTROLLER_TYPE_ROT_P, new_goal4);
-          break;
-        case 4:
-          LOGPRINT("Third line");
-          float new_goal5[3] = {-3, 2, PI};
-          controller_start(CONTROLLER_TYPE_LINE_P, new_goal5);
-          break;
-        case 5:
-          LOGPRINT("Third turn");
-          float new_goal6[3] = {-3, 2, -PI/2.0f};
-          controller_start(CONTROLLER_TYPE_ROT_P, new_goal6);
-          break;
-        case 6 :
-          LOGPRINT("Fourth line");
-          float new_goal7[3] = {-3, 0, -PI/2.0f};
-          controller_start(CONTROLLER_TYPE_LINE_P, new_goal7);
-          break;
-        case 7:
-          LOGPRINT("Fourth turn");
-          float new_goal8[3] = {-3, 0, 0};
-          controller_start(CONTROLLER_TYPE_ROT_P, new_goal8);
+          float new_goal4[3] = {0.0f, 0.0f, 0.0f};
+          controller_start(CONTROLLER_TYPE_GOTO_P, new_goal4);
           break;
       }
-    counter++;
-    if(counter > 7) counter = 0;
+	  counter++;
+	  if(counter > 3) counter = 0;
     }
 
-    vl = (v - w / 2.0f * WHEEL_BASE);
-    vr = (v + w / 2.0f * WHEEL_BASE);
+    static int uart_downsample_counter = 0;
+    if (uart_downsample_counter++ > uart_downsample) {
+    	uart_downsample_counter = 0;
+
+    	int16_t vl_i16 = (int16_t)(100.0f * (v - w * 0.1475f / 2.0f ) / 0.03f / 6.28f);
+    	int16_t vr_i16 = (int16_t)(100.0f * (v + w * 0.1475f / 2.0f ) / 0.03f / 6.28);
+    	static uint8_t buf[6];
+    	buf[0] = 0xAA;
+    	buf[1] = vl_i16 & 0xFF;
+    	buf[2] = (vl_i16 >> 8) & 0xFF;
+    	buf[3] = vr_i16 & 0xFF;
+    	buf[4] = (vr_i16 >> 8) & 0xFF;
+    	buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
+
+    	// LOGPRINT("vl = %d, vr = %d\r\n", vl_i16, vr_i16);
+
+    	HAL_UART_Transmit(&huart3, buf, sizeof(buf), 1);
+    }
   }
   
   /* USER CODE END motorTask */
@@ -311,16 +311,6 @@ void ledTask(void *argument)
   }
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim->Instance == TIM6) 
-    {
-      // Notify motorTask that timer is elapsed
-      BaseType_t xHigherPriorityTaskWoken = pdFALSE;    
-      vTaskNotifyGiveFromISR(motorTaskHandle, &xHigherPriorityTaskWoken); // Notifie la tâche motorTask    
-      portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-    }
-}
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
     if (hspi == &hspi2) 

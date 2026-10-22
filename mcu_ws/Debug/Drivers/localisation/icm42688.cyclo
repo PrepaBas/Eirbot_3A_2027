@@ -1,0 +1,6 @@
+../Drivers/localisation/icm42688.c:6:13:CS_Select	1
+../Drivers/localisation/icm42688.c:10:13:CS_Deselect	1
+../Drivers/localisation/icm42688.c:15:13:write_reg	1
+../Drivers/localisation/icm42688.c:29:9:icm42688_init	1
+../Drivers/localisation/icm42688.c:60:6:icm42688_start_dma_read	1
+../Drivers/localisation/icm42688.c:71:6:icm42688_parse_data	1

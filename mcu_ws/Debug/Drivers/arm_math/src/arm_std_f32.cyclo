@@ -1,0 +1,2 @@
+../Drivers/arm_math/src/arm_math.h:6212:30:arm_sqrt_f32	2
+../Drivers/arm_math/src/arm_std_f32.c:72:6:arm_std_f32	3

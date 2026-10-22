@@ -55,7 +55,6 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern FDCAN_HandleTypeDef hfdcan1;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel3;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel2;
 extern SPI_HandleTypeDef hspi2;
@@ -69,6 +68,7 @@ extern DMA_NodeTypeDef Node_GPDMA1_Channel0;
 extern DMA_QListTypeDef List_GPDMA1_Channel0;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
 extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart3;
 extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
@@ -89,11 +89,6 @@ void NMI_Handler(void)
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
    while (1)
   {
-    __disable_irq();
-    while (1) {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-    }
   }
   /* USER CODE END NonMaskableInt_IRQn 1 */
 }
@@ -106,22 +101,11 @@ void HardFault_Handler(void)
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
   /* USER CODE END HardFault_IRQn 0 */
-    /* Inspect CFSR (Configurable Fault Status Register) */
-    volatile uint32_t cfsr = SCB->CFSR;
-    volatile uint32_t hfsr = SCB->HFSR;
-    volatile uint32_t mmar = SCB->MMFAR; // Memory Management Fault Address
-    volatile uint32_t bfar = SCB->BFAR;  // Bus Fault Address
-
-    (void)cfsr;
-    (void)hfsr;
-    (void)mmar;
-    (void)bfar;
-
-    __asm("BKPT #0"); // Pause debugger immediately on crash
+  while (1)
+  {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    __disable_irq();
-    while (1) {}
     /* USER CODE END W1_HardFault_IRQn 0 */
+  }
 }
 
 /**
@@ -135,18 +119,6 @@ void MemManage_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
-    __disable_irq();
-    while (1) {
-        
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(200);
-    }
     /* USER CODE END W1_MemoryManagement_IRQn 0 */
   }
 }
@@ -162,20 +134,6 @@ void BusFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_BusFault_IRQn 0 */
-    __disable_irq();
-    while (1) {
-        
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(200);
-    }
     /* USER CODE END W1_BusFault_IRQn 0 */
   }
 }
@@ -191,25 +149,6 @@ void UsageFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
-    __disable_irq();
-    while (1) {
-        
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(50);
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Blink USER_LED rapidly
-        HAL_Delay(200);
-    }
-    
     /* USER CODE END W1_UsageFault_IRQn 0 */
   }
 }
@@ -288,34 +227,6 @@ void GPDMA1_Channel3_IRQHandler(void)
   /* USER CODE BEGIN GPDMA1_Channel3_IRQn 1 */
 
   /* USER CODE END GPDMA1_Channel3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles FDCAN1 interrupt 0.
-  */
-void FDCAN1_IT0_IRQHandler(void)
-{
-  /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
-
-  /* USER CODE END FDCAN1_IT0_IRQn 0 */
-  HAL_FDCAN_IRQHandler(&hfdcan1);
-  /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
-
-  /* USER CODE END FDCAN1_IT0_IRQn 1 */
-}
-
-/**
-  * @brief This function handles FDCAN1 interrupt 1.
-  */
-void FDCAN1_IT1_IRQHandler(void)
-{
-  /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
-
-  /* USER CODE END FDCAN1_IT1_IRQn 0 */
-  HAL_FDCAN_IRQHandler(&hfdcan1);
-  /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
-
-  /* USER CODE END FDCAN1_IT1_IRQn 1 */
 }
 
 /**
@@ -400,6 +311,20 @@ void USART2_IRQHandler(void)
   /* USER CODE BEGIN USART2_IRQn 1 */
 
   /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART3 global interrupt.
+  */
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
+
+  /* USER CODE END USART3_IRQn 0 */
+  HAL_UART_IRQHandler(&huart3);
+  /* USER CODE BEGIN USART3_IRQn 1 */
+
+  /* USER CODE END USART3_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

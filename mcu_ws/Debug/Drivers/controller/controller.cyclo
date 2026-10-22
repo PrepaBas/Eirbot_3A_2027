@@ -1,0 +1,13 @@
+../Drivers/controller/controller.c:56:6:print_state	5
+../Drivers/controller/controller.c:73:7:restrict_angle	3
+../Drivers/controller/controller.c:78:5:is_controller_free	3
+../Drivers/controller/controller.c:86:5:is_controller_speed_zero	3
+../Drivers/controller/controller.c:94:5:init_controller	1
+../Drivers/controller/controller.c:106:5:controller_start	5
+../Drivers/controller/controller.c:135:5:controller_run	16
+../Drivers/controller/controller.c:212:7:p_controller_command	3
+../Drivers/controller/controller.c:224:7:p_controller_cap_accel	3
+../Drivers/controller/controller.c:236:5:controller_rot_p_run	3
+../Drivers/controller/controller.c:246:5:controller_line_p_run	5
+../Drivers/controller/controller.c:268:5:controller_goto_p_run	6
+../Drivers/controller/controller.c:309:5:controller_soft_stop	1
