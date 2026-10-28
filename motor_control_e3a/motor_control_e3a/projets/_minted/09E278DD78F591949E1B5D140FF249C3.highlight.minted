@@ -1,0 +1,84 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{std}\PYG{o}{::}\PYG{n}{vector}\PYG{o}{\PYGZlt{}}\PYG{n}{communication}\PYG{o}{::}\PYG{n}{FeedbackMessage}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{RadioStationCommunication}\PYG{o}{::}\PYG{n}{receive}\PYG{p}{()}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+c1}{// prepare feedback object}
+\PYG{+w}{    }\PYG{n}{std}\PYG{o}{::}\PYG{n}{vector}\PYG{o}{\PYGZlt{}}\PYG{n}{communication}\PYG{o}{::}\PYG{n}{FeedbackMessage}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{feedbackMessages}\PYG{p}{;}
+\PYG{+w}{    }\PYG{n}{feedbackMessages}\PYG{p}{.}\PYG{n}{reserve}\PYG{p}{(}\PYG{n}{NUMBER\PYGZus{}OF\PYGZus{}ROBOTS\PYGZus{}PER\PYGZus{}MULTI\PYGZus{}ROBOT\PYGZus{}FEEDBACK}\PYG{p}{);}
+
+\PYG{+w}{    }\PYG{c+c1}{// prepare feedback array}
+\PYG{+w}{    }\PYG{k}{constexpr}\PYG{+w}{ }\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{multiFeedbackSize}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{NUMBER\PYGZus{}OF\PYGZus{}ROBOTS\PYGZus{}PER\PYGZus{}MULTI\PYGZus{}ROBOT\PYGZus{}FEEDBACK}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{FEEDBACK\PYGZus{}MESSAGE\PYGZus{}SIZE}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{multiFeedback}\PYG{p}{[}\PYG{n}{multiFeedbackSize}\PYG{p}{];}
+
+\PYG{+w}{    }\PYG{c+c1}{// Init timeout}
+\PYG{+w}{    }\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{timeout\PYGZus{}s}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{2}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// 2sec timeout. On timeout : print message and return.}
+\PYG{+w}{    }\PYG{n}{timeval}\PYG{+w}{ }\PYG{n}{startTime}\PYG{p}{\PYGZob{}\PYGZcb{};}
+\PYG{+w}{    }\PYG{n}{timeval}\PYG{+w}{ }\PYG{n}{currentTime}\PYG{p}{\PYGZob{}\PYGZcb{};}
+\PYG{+w}{    }\PYG{n}{timeval}\PYG{+w}{ }\PYG{n}{elapsedTime}\PYG{p}{\PYGZob{}\PYGZcb{};}
+\PYG{+w}{    }\PYG{n}{gettimeofday}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{startTime}\PYG{p}{,}\PYG{+w}{ }\PYG{k}{nullptr}\PYG{p}{);}
+
+\PYG{+w}{    }\PYG{c+c1}{// Read Serial}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{firstAlignmentByte}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{secondAlignmentByte}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k+kt}{bool}\PYG{+w}{ }\PYG{n}{messageRetreived}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nb}{false}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k}{while}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{!}\PYG{n}{messageRetreived}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{k}{switch}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{state}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{            }\PYG{k}{case}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{:}\PYG{+w}{ }\PYG{c+c1}{// Init values}
+\PYG{+w}{                }\PYG{n}{firstAlignmentByte}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{                }\PYG{n}{secondAlignmentByte}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{                }\PYG{n}{memset}\PYG{p}{(}\PYG{n}{multiFeedback}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mh}{0x00}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{multiFeedbackSize}\PYG{p}{);}
+\PYG{+w}{                }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{;}
+\PYG{+w}{                }\PYG{k}{break}\PYG{p}{;}
+
+\PYG{+w}{            }\PYG{k}{case}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{+w}{ }\PYG{c+c1}{// find first alignment byte}
+\PYG{+w}{                }\PYG{n}{serialPortCommunicator}\PYG{p}{.}\PYG{n}{receive}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{firstAlignmentByte}\PYG{p}{,}\PYG{+w}{ }\PYG{k}{sizeof}\PYG{p}{(}\PYG{n}{firstAlignmentByte}\PYG{p}{));}
+\PYG{+w}{                }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{firstAlignmentByte}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+m+mh}{0xFF}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                    }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{2}\PYG{p}{;}
+\PYG{+w}{                }\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{                }\PYG{n}{gettimeofday}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{currentTime}\PYG{p}{,}\PYG{+w}{ }\PYG{k}{nullptr}\PYG{p}{);}
+\PYG{+w}{                }\PYG{n}{timersub}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{currentTime}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{startTime}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{elapsedTime}\PYG{p}{);}
+\PYG{+w}{                }\PYG{k}{if}\PYG{p}{(}\PYG{n}{elapsedTime}\PYG{p}{.}\PYG{n}{tv\PYGZus{}sec}\PYG{+w}{  }\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{timeout\PYGZus{}s}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                    }\PYG{n}{std}\PYG{o}{::}\PYG{n}{cout}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZlt{}}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}No feedback received in \PYGZdq{}}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZlt{}}\PYG{+w}{ }\PYG{n}{timeout\PYGZus{}s}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZlt{}}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{} second(s).\PYGZdq{}}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZlt{}}\PYG{+w}{ }\PYG{n}{std}\PYG{o}{::}\PYG{n}{endl}\PYG{p}{;}
+\PYG{+w}{                    }\PYG{k}{return}\PYG{+w}{ }\PYG{n}{feedbackMessages}\PYG{p}{;}
+\PYG{+w}{                }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{                }\PYG{k}{break}\PYG{p}{;}
+
+\PYG{+w}{            }\PYG{k}{case}\PYG{+w}{ }\PYG{l+m+mi}{2}\PYG{p}{:}\PYG{+w}{ }\PYG{c+c1}{// find second alignment byte}
+\PYG{+w}{                }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{!}\PYG{n}{serialPortCommunicator}\PYG{p}{.}\PYG{n}{receive}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{secondAlignmentByte}\PYG{p}{,}\PYG{+w}{ }\PYG{k}{sizeof}\PYG{p}{(}\PYG{n}{secondAlignmentByte}\PYG{p}{)))}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                    }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{                    }\PYG{k}{break}\PYG{p}{;}
+\PYG{+w}{                }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{                }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{secondAlignmentByte}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{l+m+mh}{0xFF}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                    }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{3}\PYG{p}{;}
+\PYG{+w}{                }\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{k}{else}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                    }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{                }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{                }\PYG{k}{break}\PYG{p}{;}
+
+\PYG{+w}{            }\PYG{k}{case}\PYG{+w}{ }\PYG{l+m+mi}{3}\PYG{p}{:}\PYG{+w}{ }\PYG{c+c1}{// get all feedback messages}
+\PYG{+w}{                }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{!}\PYG{n}{serialPortCommunicator}\PYG{p}{.}\PYG{n}{receive}\PYG{p}{(}\PYG{n}{multiFeedback}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{multiFeedbackSize}\PYG{p}{))}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                    }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{                    }\PYG{k}{break}\PYG{p}{;}
+\PYG{+w}{                }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{                }\PYG{n}{messageRetreived}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nb}{true}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// Success}
+\PYG{+w}{                }\PYG{k}{break}\PYG{p}{;}
+
+\PYG{+w}{            }\PYG{k}{default}\PYG{o}{:}
+\PYG{+w}{                }\PYG{n}{state}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{                }\PYG{k}{break}\PYG{p}{;}
+\PYG{+w}{        }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{    }\PYG{c+c1}{// Parse Serial message. Only keep non\PYGZhy{}empty feedback messages}
+
+\PYG{+w}{    }\PYG{k}{for}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{i}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{i}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{+w}{ }\PYG{n}{NUMBER\PYGZus{}OF\PYGZus{}ROBOTS\PYGZus{}PER\PYGZus{}MULTI\PYGZus{}ROBOT\PYGZus{}FEEDBACK}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{i}\PYG{o}{++}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{n}{communication}\PYG{o}{::}\PYG{n}{FeedbackMessage}\PYG{+w}{ }\PYG{n}{message}\PYG{p}{;}
+\PYG{+w}{        }\PYG{n}{protocol}\PYG{p}{.}\PYG{n}{parseFeedbackMessage}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{multiFeedback}\PYG{p}{[}\PYG{n}{i}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{FEEDBACK\PYGZus{}MESSAGE\PYGZus{}SIZE}\PYG{p}{],}\PYG{+w}{ }\PYG{n}{message}\PYG{p}{);}\PYG{+w}{ }\PYG{c+c1}{// checksum is checked here}
+
+\PYG{+w}{        }\PYG{k}{if}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{message}\PYG{p}{.}\PYG{n}{instructionIdentifier}\PYG{+w}{ }\PYG{o}{==}\PYG{+w}{ }\PYG{n}{VALID\PYGZus{}FEEDBACK\PYGZus{}INSTRUCTION\PYGZus{}IDENTIFIER}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{            }\PYG{n}{feedbackMessages}\PYG{p}{.}\PYG{n}{push\PYGZus{}back}\PYG{p}{(}\PYG{n}{message}\PYG{p}{);}
+\PYG{+w}{        }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{}}
+\PYG{+w}{    }\PYG{k}{return}\PYG{+w}{ }\PYG{n}{feedbackMessages}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

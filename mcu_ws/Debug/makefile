@@ -68,8 +68,8 @@ all: main-build
 main-build: robot_mcu.elf secondary-outputs
 
 # Tool invocations
-robot_mcu.elf robot_mcu.map: $(OBJS) $(USER_OBJS) /home/bastien/Documents/robot_mcu/STM32H533RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "robot_mcu.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"/home/bastien/Documents/robot_mcu/STM32H533RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="robot_mcu.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+robot_mcu.elf robot_mcu.map: $(OBJS) $(USER_OBJS) /home/bastien/Documents/Eirbot_3A_2027/mcu_ws/STM32H533RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "robot_mcu.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m33 -T"/home/bastien/Documents/Eirbot_3A_2027/mcu_ws/STM32H533RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="robot_mcu.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

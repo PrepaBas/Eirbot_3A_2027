@@ -144,8 +144,8 @@ void StartLedTask(void *argument)
   for(;;)
   {
 	// while(1){osDelay(1000);}
-    osDelay(100);
-    float pose[3] = {};
+  osDelay(100);
+  float pose[3] = {};
 	kalman_get_pose(pose);
 	long int x = pose [0] * 1000;
 	long int y = pose [1] * 1000;
@@ -165,7 +165,7 @@ void StartLedTask(void *argument)
 void StartMotorTask(void *argument)
 {
   /* USER CODE BEGIN motorTask */
-  kalman_init(); // call before uRos start sending pose msg
+  kalman_init();
   osDelay(1000);
   // Kalman filter Initialization
   LOGPRINT("MotorTask Start"); 
@@ -191,9 +191,10 @@ void StartMotorTask(void *argument)
   float v = 0.0f; 
   float w = 0.0f;
 
-  const int uart_downsample = 100;
+  const int uart_downsample = 40;
 
-  osDelay(1000);
+  osDelay(2000);
+  kalman_set_state(0.0f, 0.0f, 0.0f);
   /* Infinite loop */
   for(;;)
   {
@@ -223,12 +224,7 @@ void StartMotorTask(void *argument)
         } 
         else { enable_imu = 0;} // no imu data   
     }
-    
-    if((!enable_encoder) && (!enable_imu))
-    {
-      //wr = 0.5f;
-      //wl = 0.0f; // TODO get motor speeds
-    }
+
     
     if(enable_imu && enable_encoder){
       float d = (encoder1_delta - encoder2_delta) * PI * WHEEL_RADIUS; 

@@ -1,0 +1,179 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{Template_Enseirb_Matmeca}  % Charge ton template
+\usepackage{pdfpages}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{minted}
+\usemintedstyle{vs} % Options: vs, monokai, github, etc.
+
+% --- Configuration pour le code C++ ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    language=C++,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    showspaces=false,
+    showstringspaces=false,
+    frame=single
+}
+
+% --- Configuration pour le code Arduino/Robotique ---
+\lstset{
+  language=C,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue},
+  morekeywords={pami_begin, setup, loop, mesurerDistance, pinMode, digitalWrite, digitalRead, beginPami, avancer, reculer, droite, gauche, mesurerDistance, bluetoothControl, maFonction, stop, delay},
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  frame=single
+}
+
+% --- Configuration Hyperref et Listings ---
+\RequirePackage[hidelinks]{hyperref} % Paquet pour insérer légendes dans des sous-figures comme Figure 1a, 1b
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+    escapeinside={(*}{*)}
+}
+
+\begin{document}
+\begin{titlepage}
+
+\centering %Centraliser le contenu
+
+% Logos associations
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{eirbot.png}
+\end{figure}
+ 
+%\vspace{17cm}
+% Titre du rapport
+\rule{\linewidth}{0.2 mm} \\[0.4 cm]
+{\huge\bfseries Rapport de Projet\\ \par } \
+\rule{\linewidth}{0.2 mm} \\[0.5 cm]
+
+\vspace{0.5cm}
+
+{\large\bfseries Conception et développement du système robotique Eirbot\par } \
+
+% Dates
+{\large Septembre 2026\par} 
+
+\vspace{3cm}
+
+%logo enseirb et CEA
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.75\textwidth]{logo EM.png}\par\vspace{2.0cm} %Insertion du logo entreprise
+\end{figure}
+
+\vspace{5cm}
+%\vfill
+% Représentants de l'étudiant
+\begin{minipage}{0.5\textwidth}
+    \begin{flushleft} 
+    \emph{\textbf{Auteur :}}\\ 
+    Bastien TRAN-RUESCHE \\
+    \vspace{0.5cm}
+    \emph{\textbf{Tuteur du stage :}}\\ 
+    Feur \\
+    \end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+    \begin{flushright} 
+    \emph{\textbf{Tuteur académique :}} \\
+        6776767777676767
+    \end{flushright}
+\end{minipage}\\[4cm]
+    
+    \vfill
+
+\end{titlepage}
+
+\newpage
+
+% Page blanche
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+Ce projet a été initié au sein de l'équipe 3A Eirbot, dans le cadre de la préparation à la Coupe de France de Robotique. L'objectif principal de ce travail est de définir et de réaliser les blocs fonctionnels nécessaires à la compétitivité du robot sur l'épreuve.
+
+À l'heure actuelle, l'équipe se trouve dans une phase de développement active. Il est crucial de structurer les tâches pour permettre une collaboration efficace. Je cherche actuellement des volontaires au sein de l'équipe pour participer à la conception et à la réalisation du robot.
+
+\section{Projets Proposés}
+
+L'équipe a identifié trois axes majeurs de développement. Chaque projet est autonome mais s'intègre dans l'architecture globale du robot.
+
+\begin{enumerate}
+    \item \textbf{Contrôle moteur et asservissement}
+
+    Le but est de concevoir un bloc moteur indépendant du reste du robot afin de pouvoir en changer facilement dans le futur. Cela permet aussi de séparer les ressources CPU, le contrôle moteur pouvant être plutôt lourd.
+
+    \begin{itemize}
+        \item \textit{Matériel :} Deux moteurs DC réduits équipés d'une encodeuse sur l'arbre moteur. Utilisation d'un driver DC XU-112855, dont la commande est similaire à celle des L298.
+        \item \textit{Architecture :} Le contrôleur du bloc moteur est un STM32G431, largement capable de gérer l'asservissement.
+        \item \textit{Communication :} Les vitesses de consigne sont données par bus FD-CAN par le contrôleur principal (la couche de communication est à définir).
+        \item \textit{Défi technique :} Le driver/moteur étant des composants lents, l'asservissement devra se faire à une fréquence un peu basse. De plus, la résolution de l'encodeuse moteur est basse, ce qui pourrait rendre l'asservissement en vitesse impossible. Il faudra peut-être passer en asservissement en position.
+    \end{itemize}
+
+    \item \textbf{Encodeurs sur table (Odométrie différentielle)}
+
+    Les encodeurs sur table constituent une deuxième paire de roues qui se montent de part et d'autre des roues motrices. Ces roues étant normalement moins sujettes aux déformations des roues classiques, l'odométrie en sera plus précise.
+
+    \begin{itemize}
+        \item \textit{Matériel acquis :}
+        \begin{itemize}
+            \item Deux rails linéaires pour suspendre la roue (de manière à ne pas gêner les roues motrices).
+            \item Une encodeuse magnétique MT6835 qui mesure l'angle d'un aimant radial fourni.
+            \item Des roulements à bille 6702.
+            \item Des élastiques si nécessaire pour la tension de la bande.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Châssis et support de test}
+
+    Ce projet consiste à la construction d'un premier support pour les moteurs et les encodeurs sur table, permettant de commencer à tester le tout ensemble.
+
+    \begin{itemize}
+        \item \textit{Matériau :} Une planche de bois suffit pour cette version.
+        \item \textit{Dimensions :} Idéalement, la planche doit faire 5mm comme prévu pour la version finale, mais cette épaisseur est optionnelle pour la phase de prototypage.
+        \item \textit{Fabrication :} La découpe laser est une option à privilégier pour obtenir des pièces précises et rapides.
+    \end{itemize}
+\end{enumerate}
+
+\end{document}

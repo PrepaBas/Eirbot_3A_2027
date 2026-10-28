@@ -1,0 +1,161 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+
+\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n+nf}{tryRobots}\PYG{p}{(}\PYG{n}{Lcd\PYGZus{}HandleTypeDef}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{lcd}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{c+c1}{// Radios}
+\PYG{+w}{	}\PYG{n}{RF24}\PYG{+w}{ }\PYG{n}{radioTX}\PYG{p}{;}
+
+\PYG{+w}{	}\PYG{k+kt}{char}\PYG{+w}{ }\PYG{n}{ok}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{l+s+sc}{\PYGZsq{}Y\PYGZsq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{\PYGZcb{};}
+\PYG{+w}{	}\PYG{k+kt}{char}\PYG{+w}{ }\PYG{n}{ko}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{l+s+sc}{\PYGZsq{}\PYGZhy{}\PYGZsq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{\PYGZcb{};}
+\PYG{+w}{	}\PYG{k+kt}{char}\PYG{+w}{ }\PYG{n}{lcd\PYGZus{}buff}\PYG{p}{[}\PYG{l+m+mi}{32}\PYG{p}{];}
+\PYG{+w}{	}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{rx\PYGZus{}timeout\PYGZus{}ms}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{3}\PYG{p}{;}
+
+\PYG{+w}{	}\PYG{n}{initializeRF24}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}RX\PYGZus{}CE\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}RX\PYGZus{}CE\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}RX\PYGZus{}CSN\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}RX\PYGZus{}CSN\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{hspi3}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{begin}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setPayloadSize}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setChannel}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RxRadioChannel}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setDataRate}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RF24\PYGZus{}2MBPS}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{maskIRQ}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{);}\PYG{+w}{         }\PYG{c+c1}{// Allows only RX events}
+\PYG{+w}{	}\PYG{n}{setCRCLength}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RF24\PYGZus{}CRC\PYGZus{}16}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setPALevel}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RF24\PYGZus{}PA\PYGZus{}MIN}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setAutoAck}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setRetries}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{);}
+\PYG{+w}{	}\PYG{c+c1}{// Open communication pipes}
+\PYG{+w}{	}\PYG{n}{openReadingPipe}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{broadcastAddress}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{startListening}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{);}
+
+\PYG{+w}{	}\PYG{n}{testUserLedsRX}\PYG{p}{();}
+
+\PYG{+w}{	}\PYG{n}{initializeRF24}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}TX\PYGZus{}CE\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}TX\PYGZus{}CE\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}TX\PYGZus{}CNS\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RADIO\PYGZus{}TX\PYGZus{}CNS\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{hspi2}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{begin}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setPayloadSize}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setChannel}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{TxRadioChannel}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setDataRate}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RF24\PYGZus{}2MBPS}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{maskIRQ}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{);}\PYG{+w}{         }\PYG{c+c1}{// Allows only TX events}
+\PYG{+w}{	}\PYG{n}{setCRCLength}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RF24\PYGZus{}CRC\PYGZus{}16}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setPALevel}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RF24\PYGZus{}PA\PYGZus{}MAX}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{setAutoAck}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{);}
+
+\PYG{+w}{	}\PYG{c+c1}{// Open communication pipes}
+\PYG{+w}{	}\PYG{n}{openWritingPipe}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{broadcastAddress}\PYG{p}{);}
+\PYG{+w}{	}\PYG{n}{stopListening}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{);}
+
+\PYG{+w}{	}\PYG{n}{testUserLedsTX}\PYG{p}{();}
+\PYG{+w}{	}\PYG{n}{displayChannel}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,(}\PYG{k+kt}{uint8\PYGZus{}t}\PYG{p}{)}\PYG{+w}{ }\PYG{n}{RxRadioChannel}\PYG{p}{);}
+
+\PYG{+w}{	}\PYG{n}{delay}\PYG{p}{(}\PYG{l+m+mi}{1000}\PYG{p}{);}
+
+\PYG{+w}{	}\PYG{k}{while}\PYG{p}{(}\PYG{n}{appMode}\PYG{o}{==}\PYG{n}{tryRobotsAppMode}\PYG{p}{)}
+\PYG{+w}{	}\PYG{p}{\PYGZob{}}
+\PYG{+w}{		}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{radio\PYGZus{}tx\PYGZus{}ok}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{isChipConnected}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{);}
+\PYG{+w}{		}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{radio\PYGZus{}rx\PYGZus{}ok}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{isChipConnected}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{);}
+\PYG{+w}{		}\PYG{n}{HAL\PYGZus{}GPIO\PYGZus{}WritePin}\PYG{p}{(}\PYG{n}{USER\PYGZus{}LED\PYGZus{}6\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{USER\PYGZus{}LED\PYGZus{}6\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{GPIO\PYGZus{}PIN\PYGZus{}RESET}\PYG{p}{);}\PYG{+w}{ }\PYG{c+c1}{// radio sucess led}
+\PYG{+w}{		}\PYG{n}{HAL\PYGZus{}GPIO\PYGZus{}WritePin}\PYG{p}{(}\PYG{n}{USER\PYGZus{}LED\PYGZus{}4\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{USER\PYGZus{}LED\PYGZus{}4\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{radio\PYGZus{}rx\PYGZus{}ok}\PYG{o}{?}\PYG{n}{GPIO\PYGZus{}PIN\PYGZus{}RESET}\PYG{o}{:}\PYG{n}{GPIO\PYGZus{}PIN\PYGZus{}SET}\PYG{p}{);}\PYG{+w}{ }\PYG{c+c1}{// rx rardio off led}
+\PYG{+w}{		}\PYG{n}{HAL\PYGZus{}GPIO\PYGZus{}WritePin}\PYG{p}{(}\PYG{n}{USER\PYGZus{}LED\PYGZus{}2\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{USER\PYGZus{}LED\PYGZus{}2\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{radio\PYGZus{}tx\PYGZus{}ok}\PYG{o}{?}\PYG{n}{GPIO\PYGZus{}PIN\PYGZus{}RESET}\PYG{o}{:}\PYG{n}{GPIO\PYGZus{}PIN\PYGZus{}SET}\PYG{p}{);}\PYG{+w}{ }\PYG{c+c1}{// tx radio off led}
+
+\PYG{+w}{		}\PYG{k}{if}\PYG{p}{(}\PYG{n}{radio\PYGZus{}rx\PYGZus{}ok}\PYG{+w}{ }\PYG{o}{\PYGZam{}\PYGZam{}}\PYG{+w}{ }\PYG{n}{radio\PYGZus{}tx\PYGZus{}ok}\PYG{p}{)}\PYG{+w}{ }\PYG{c+c1}{// both radios are up}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{k+kt}{char}\PYG{+w}{ }\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{l+m+mi}{6}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{p}{\PYGZob{}}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{\PYGZcb{};}
+\PYG{+w}{			}\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{feedbacks}\PYG{p}{[}\PYG{l+m+mi}{6}\PYG{o}{*}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{];}
+\PYG{+w}{			}\PYG{n}{memset}\PYG{p}{(}\PYG{n}{feedbacks}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mh}{0x00}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{6}\PYG{o}{*}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{);}
+\PYG{+w}{			}\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{i}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{i}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{3}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{i}\PYG{o}{++}\PYG{p}{)}
+\PYG{+w}{			}\PYG{p}{\PYGZob{}}
+\PYG{+w}{				}\PYG{k+kt}{char}\PYG{+w}{ }\PYG{n}{test\PYGZus{}cmd}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{o}{*}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{];}
+\PYG{+w}{				}\PYG{k+kt}{char}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{test\PYGZus{}cmd}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{];}
+\PYG{+w}{				}\PYG{k+kt}{char}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{test\PYGZus{}cmd}\PYG{p}{[}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{];}
+\PYG{+w}{				}
+\PYG{+w}{				}\PYG{c+c1}{// reset message}
+\PYG{+w}{				}\PYG{n}{memset}\PYG{p}{(}\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{);}
+\PYG{+w}{				}\PYG{n}{memset}\PYG{p}{(}\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{);}
+
+\PYG{+w}{				}\PYG{c+c1}{//Instruction Identifier}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mh}{0x01}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mh}{0x01}\PYG{p}{;}
+
+\PYG{+w}{				}\PYG{c+c1}{// add robots ID}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{+w}{  }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{[}\PYG{l+m+mi}{11}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{[}\PYG{l+m+mi}{21}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mi}{2}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{+w}{  }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mi}{3}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{[}\PYG{l+m+mi}{11}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mi}{4}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{[}\PYG{l+m+mi}{21}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mi}{5}\PYG{p}{;}
+
+\PYG{+w}{				}\PYG{c+c1}{// enable one robot feedback per command}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{10}\PYG{o}{*}\PYG{n}{i}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mb}{0b01000000}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{10}\PYG{o}{*}\PYG{n}{i}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{l+m+mb}{0b01000000}\PYG{p}{;}
+\PYG{+w}{					}
+\PYG{+w}{				}\PYG{c+c1}{// write checksum}
+\PYG{+w}{				}\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{checksum\PYGZus{}012}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{				}\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{checksum\PYGZus{}345}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{				}\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{j}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{j}\PYG{o}{\PYGZlt{}}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{+w}{ }\PYG{l+m+mi}{\PYGZhy{}1}\PYG{+w}{ }\PYG{p}{;}\PYG{+w}{ }\PYG{n}{j}\PYG{o}{++}\PYG{p}{)}
+\PYG{+w}{				}\PYG{p}{\PYGZob{}}
+\PYG{+w}{					}\PYG{n}{checksum\PYGZus{}012}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{[}\PYG{n}{j}\PYG{p}{];}
+\PYG{+w}{					}\PYG{n}{checksum\PYGZus{}345}\PYG{+w}{ }\PYG{o}{+=}\PYG{+w}{ }\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{[}\PYG{n}{j}\PYG{p}{];}
+\PYG{+w}{				}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}012}\PYG{p}{[}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{l+m+mi}{\PYGZhy{}1}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{checksum\PYGZus{}012}\PYG{p}{;}
+\PYG{+w}{				}\PYG{n}{test\PYGZus{}cmd\PYGZus{}345}\PYG{p}{[}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{l+m+mi}{\PYGZhy{}1}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{checksum\PYGZus{}345}\PYG{p}{;}
+
+\PYG{+w}{				}\PYG{c+c1}{// Send 32 bytes and wait for feedback with timeout}
+\PYG{+w}{				}\PYG{n}{flush\PYGZus{}tx}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{);}
+\PYG{+w}{				}\PYG{n}{flush\PYGZus{}rx}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{);}
+
+\PYG{+w}{				}\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{j}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{j}\PYG{o}{\PYGZlt{}}\PYG{l+m+mi}{2}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{j}\PYG{o}{++}\PYG{p}{)}
+\PYG{+w}{				}\PYG{p}{\PYGZob{}}
+\PYG{+w}{					}\PYG{k}{if}\PYG{p}{(}\PYG{n}{write}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioTX}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{test\PYGZus{}cmd}\PYG{p}{[}\PYG{n}{j}\PYG{o}{*}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{],}\PYG{+w}{ }\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{))}
+\PYG{+w}{					}\PYG{p}{\PYGZob{}}
+\PYG{+w}{						}\PYG{k+kt}{uint32\PYGZus{}t}\PYG{+w}{ }\PYG{n}{last\PYGZus{}time}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{HAL\PYGZus{}GetTick}\PYG{p}{();}\PYG{+w}{  }\PYG{c+c1}{// alternatively use \PYGZus{}HAL\PYGZus{}TIM\PYGZus{}GET\PYGZus{}COUNTER(\PYGZam{}htim3) for a more precise timeout;}
+\PYG{+w}{						}\PYG{k}{while}\PYG{p}{(}\PYG{o}{!}\PYG{n}{messageReceived}\PYG{p}{)}
+\PYG{+w}{						}\PYG{p}{\PYGZob{}}
+\PYG{+w}{							}\PYG{k+kt}{uint32\PYGZus{}t}\PYG{+w}{ }\PYG{n}{now\PYGZus{}time}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{HAL\PYGZus{}GetTick}\PYG{p}{();}
+\PYG{+w}{							}\PYG{k}{if}\PYG{p}{(}\PYG{n}{now\PYGZus{}time}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{last\PYGZus{}time}\PYG{+w}{ }\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{rx\PYGZus{}timeout\PYGZus{}ms}\PYG{p}{)}
+\PYG{+w}{							}\PYG{p}{\PYGZob{}}
+\PYG{+w}{								}\PYG{k}{break}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{// timout occured and messageReceived is still false}
+\PYG{+w}{							}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{						}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{						}\PYG{k}{if}\PYG{p}{(}\PYG{n}{messageReceived}\PYG{p}{)}
+\PYG{+w}{						}\PYG{p}{\PYGZob{}}
+\PYG{+w}{							}\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{3}\PYG{o}{*}\PYG{n}{j}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{;}
+\PYG{+w}{							}\PYG{n}{read}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{radioRX}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{feedbacks}\PYG{p}{[}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{3}\PYG{o}{*}\PYG{n}{j}\PYG{p}{],}\PYG{+w}{ }\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{);}
+\PYG{+w}{							}\PYG{n}{HAL\PYGZus{}GPIO\PYGZus{}WritePin}\PYG{p}{(}\PYG{n}{USER\PYGZus{}LED\PYGZus{}6\PYGZus{}GPIO\PYGZus{}Port}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{USER\PYGZus{}LED\PYGZus{}6\PYGZus{}Pin}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{GPIO\PYGZus{}PIN\PYGZus{}SET}\PYG{p}{);}
+\PYG{+w}{						}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{					}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{					}\PYG{n}{messageReceived}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{				}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{			}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{			}\PYG{n}{HAL\PYGZus{}UART\PYGZus{}Transmit}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{huart2}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{alignment\PYGZus{}byte}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{3}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{HAL\PYGZus{}UART\PYGZus{}Transmit}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{huart2}\PYG{p}{,}\PYG{+w}{ }\PYG{o}{\PYGZam{}}\PYG{n}{alignment\PYGZus{}byte}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{3}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{HAL\PYGZus{}UART\PYGZus{}Transmit}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{huart2}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{feedbacks}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{6}\PYG{o}{*}\PYG{n}{MSG\PYGZus{}SIZE}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{3}\PYG{p}{);}
+
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}clear}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{sprintf}\PYG{p}{(}\PYG{n}{lcd\PYGZus{}buff}\PYG{p}{,}\PYG{l+s}{\PYGZdq{}Rx:\PYGZpc{}0.3d|Tx:\PYGZpc{}0.3d|0\PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{RxRadioChannel}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{TxRadioChannel}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}cursor}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}string}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{lcd\PYGZus{}buff}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{sprintf}\PYG{p}{(}\PYG{n}{lcd\PYGZus{}buff}\PYG{p}{,}\PYG{l+s}{\PYGZdq{}1\PYGZpc{}s|2\PYGZpc{}s|3\PYGZpc{}s|4\PYGZpc{}s|5\PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{l+m+mi}{4}\PYG{p}{]}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{robot\PYGZus{}available}\PYG{p}{[}\PYG{l+m+mi}{5}\PYG{p}{]}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}cursor}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}string}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{lcd\PYGZus{}buff}\PYG{p}{);}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{k}{else}\PYG{+w}{ }\PYG{c+c1}{// at least one faulty radio}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}clear}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}cursor}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{sprintf}\PYG{p}{(}\PYG{n}{lcd\PYGZus{}buff}\PYG{p}{,}\PYG{l+s}{\PYGZdq{}Rx \PYGZpc{}s  Tx \PYGZpc{}s\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{radio\PYGZus{}rx\PYGZus{}ok}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{radio\PYGZus{}tx\PYGZus{}ok}\PYG{o}{?}\PYG{n}{ok}\PYG{o}{:}\PYG{n}{ko}\PYG{p}{);}
+\PYG{+w}{			}\PYG{n}{Lcd\PYGZus{}string}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{lcd\PYGZus{}buff}\PYG{p}{);}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+
+\PYG{+w}{		}\PYG{k}{if}\PYG{p}{(}\PYG{n}{encoder\PYGZus{}on}\PYG{p}{)}\PYG{+w}{ }\PYG{c+c1}{// may be a bit laggy because of low refresh rate of the loop}
+\PYG{+w}{		}\PYG{p}{\PYGZob{}}
+\PYG{+w}{			}\PYG{n}{encoder\PYGZus{}on}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{			}\PYG{n}{appMode}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{initMenu}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{);}
+\PYG{+w}{			}\PYG{k}{if}\PYG{p}{(}\PYG{n}{appMode}\PYG{o}{==}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{+w}{			}\PYG{p}{\PYGZob{}}
+\PYG{+w}{				}\PYG{n}{displayChannel}\PYG{p}{(}\PYG{n}{lcd}\PYG{p}{,(}\PYG{k+kt}{uint8\PYGZus{}t}\PYG{p}{)}\PYG{+w}{ }\PYG{n}{RxRadioChannel}\PYG{p}{);}
+\PYG{+w}{			}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{		}
+\PYG{+w}{		}\PYG{n}{HAL\PYGZus{}Delay}\PYG{p}{(}\PYG{l+m+mi}{500}\PYG{p}{);}
+\PYG{+w}{	}\PYG{p}{\PYGZcb{}}
+\PYG{+w}{	}\PYG{n}{timeElapsedSend}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

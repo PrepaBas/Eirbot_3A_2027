@@ -1,0 +1,27 @@
+\ProvidesPackage{Template_Enseirb_Matmeca}
+\usepackage[T1]{fontenc}  % Encodage pour le français
+\usepackage{graphicx}  % Pour inclure le logo
+\usepackage{fancyhdr}  % Pour personnaliser les en-têtes et pieds de page
+\usepackage{titlesec}  % Pour le formatage des sections
+\usepackage[hidelinks]{hyperref}  % Pour le sommaire dynamique
+\usepackage{geometry}  % Pour gérer les marges
+\usepackage{datetime}  % Pour la date automatique
+\usepackage{tocloft}   % Pour le sommaire
+\usepackage[english]{babel} % Pour le français
+\usepackage{lmodern} % Pour une meilleure police
+\usepackage{svg}
+
+% Définition des marges
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+% Configuration de l'en-tête et du pied de page
+\setlength{\headheight}{32.803pt} % Ajustement de la hauteur de l'en-tête
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textbf{ITA internship report}}
+\rhead{\includegraphics[height=1.5cm]{eirbot.png}}
+\lfoot{Bastien TRAN-RUESCHE}
+\cfoot{\thepage}
+%\rfoot{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
