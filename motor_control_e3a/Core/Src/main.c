@@ -187,18 +187,18 @@ int main(void)
     uint16_t count2 = __HAL_TIM_GET_COUNTER(&htim4);
     uint16_t new_counter[k_motor_count] = {count1, count2};
     int16_t delta_counter[k_motor_count] = {new_counter[0] - prev_counter[0],
-                                            -new_counter[1] + prev_counter[1]};
+                                            new_counter[1] - prev_counter[1]};
     prev_counter[0] = new_counter[0];
     prev_counter[1] = new_counter[1];
     //printf("d1 : %d, d2 : %d\r\n", delta_counter[0], delta_counter[1]);
     
     // ----- USER COMMAND AQUISITION ----- //
     if (is_payload_valid) {
-    	int16_t uvr = (valid_payload[1] << 8) + valid_payload[0];
-    	int16_t uvl = (valid_payload[3] << 8) + valid_payload[2];
-    	printf("vr = %d, vl = %d\r\n", uvr, uvl);
+    	int16_t uvl = (valid_payload[1] << 8) + valid_payload[0];
+    	int16_t uvr = (valid_payload[3] << 8) + valid_payload[2];
+    	// printf("vr = %d, vl = %d\r\n", uvr, uvl);
     	u[0] = (float)uvl / 100.0f;
-    	u[1] = (float)uvr / 100.0f;
+    	u[1] = - (float)uvr / 100.0f;
     	is_payload_valid = false;
     	timeout_counter = 0;
     }
@@ -215,6 +215,7 @@ int main(void)
       u[0] = 0.0f;
       u[1] = 0.0f;
     }
+
     // ------ CONTROl THEORY ----- //
     float kp = 0.1f;
     float ki = 0.03f;

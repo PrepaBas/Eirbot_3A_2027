@@ -41,11 +41,11 @@ float max_line_linear_speed = 0.5f;
 float max_line_linear_accel = 1.0f;
 
 // p goto controller
-float kp_goto_linear = 4.0f;
+float kp_goto_linear = 3.5f;
 float kp_goto_angular = 4.0f;
-float max_goto_linear_speed = 0.5f;
+float max_goto_linear_speed = 1.0f;
 float max_goto_angular_speed = 3.14f;
-float max_goto_linear_accel = 0.4f;
+float max_goto_linear_accel = 2.0f;
 float max_goto_angular_accel = 6.28f;
 
 // soft stop
@@ -138,7 +138,7 @@ int controller_start(enum CONTROLLER_TYPE controller_type, float *new_goal)
     {
         current_controller = controller_type;
         is_there_new_goal = 1;
-        LOGPRINT("Controller started");
+        LOGPRINT("Controller started, going to %ld, %ld, %ld", (long int)(1000* goal[0]), (long int)(1000* goal[1]), (long int)(1000* goal[2]));
     }
     return error_flag;
 }
@@ -247,6 +247,10 @@ float p_controller_cap_accel(float command, float prev_command, float max_accel,
     {
         command = prev_command + max_delta;
     }
+    else if (delta < -max_delta) // only cap accel. Decel is "capped" by kp
+    {
+        command = prev_command - max_delta;
+    }
     return command;
 }
 
@@ -291,6 +295,7 @@ int controller_line_p_run()
 
 int goto_step = 0;
 float original_heading = 0.0f;
+int finish_counter = 0;
 int controller_goto_p_run()
 {
     float d = sqrt(pow(pose[0] - goal[0], 2) + pow(pose[1] - goal[1], 2));
@@ -301,7 +306,7 @@ int controller_goto_p_run()
     
     if (goto_step < 2)
     {
-        float rot_command = p_controller_command(error_theta, -max_rot_speed, max_rot_speed, kp_rot);
+        float rot_command = p_controller_command(error_theta, -max_rot_speed, max_rot_speed, kp_goto_angular);
         angular_velocity = p_controller_cap_accel(rot_command, old_angular_velocity, max_rot_accel, time_step);
         
         if(goto_step == 1)
@@ -317,8 +322,10 @@ int controller_goto_p_run()
     }
     else if (goto_step == 2)
     {
-        d_original = d * cosf(error_theta - (pose[2] - original_heading));
+        d_original = d * cosf(error_theta - (original_heading - pose[2]));
+        u_d = p_controller_command(d_original, -max_goto_linear_speed, max_goto_linear_speed, kp_goto_linear);
         linear_velocity = p_controller_cap_accel(u_d, old_linear_velocity, max_goto_linear_accel, time_step);
+        // LOGPRINT("d_ori: %d, u_d: %d, lin_vel = : %d", (int)(1000 * d_original), (int)(1000 * u_d), (int)(1000 * linear_velocity));
         old_linear_velocity = linear_velocity;
         angular_velocity = 0.0f;
         old_angular_velocity = 0.0f;
@@ -326,7 +333,7 @@ int controller_goto_p_run()
     
     switch(goto_step)
     {
-        case 0:
+        case 0: // first rotation
             original_heading = pose[2];
             if ((error_theta > -0.1f) && (error_theta < 0.1f))
             {
@@ -334,7 +341,7 @@ int controller_goto_p_run()
             }
             break;
 
-        case 1:
+        case 1: // straight line
             if ((error_theta < -0.5f) || (error_theta > 0.5f))
             {
                 goto_step = 0;
@@ -345,15 +352,18 @@ int controller_goto_p_run()
             }
             break;
 
-        case 2:
-            if(d_original < 0.001f)
+        case 2: // final convergence to goal. 
+            if (d_original > -0.001 && d_original < 0.001f)
             {
-                goto_step = 0;
-                return 1;
+                if (finish_counter++ > 200) 
+                {
+                    finish_counter = 0;
+                    goto_step = 0;
+                    return 1; // signal controller is finished
+                }
             }
             break;
     }
-
     return 0;
 }
 
