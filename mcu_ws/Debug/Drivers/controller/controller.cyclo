@@ -6,8 +6,8 @@
 ../Drivers/controller/controller.c:115:5:controller_start	5
 ../Drivers/controller/controller.c:146:5:controller_run	16
 ../Drivers/controller/controller.c:228:7:p_controller_command	3
-../Drivers/controller/controller.c:242:7:p_controller_cap_accel	2
-../Drivers/controller/controller.c:253:5:controller_rot_p_run	3
-../Drivers/controller/controller.c:265:5:controller_line_p_run	5
-../Drivers/controller/controller.c:294:5:controller_goto_p_run	14
-../Drivers/controller/controller.c:360:5:controller_soft_stop	1
+../Drivers/controller/controller.c:242:7:p_controller_cap_accel	3
+../Drivers/controller/controller.c:257:5:controller_rot_p_run	3
+../Drivers/controller/controller.c:269:5:controller_line_p_run	5
+../Drivers/controller/controller.c:299:5:controller_goto_p_run	16
+../Drivers/controller/controller.c:370:5:controller_soft_stop	1

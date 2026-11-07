@@ -60,8 +60,8 @@ all: main-build
 main-build: motor_control_e3a.elf secondary-outputs
 
 # Tool invocations
-motor_control_e3a.elf motor_control_e3a.map: $(OBJS) $(USER_OBJS) /home/bastien/Documents/motor_control_e3a/motor_control_e3a/STM32G431KBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "motor_control_e3a.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/bastien/Documents/motor_control_e3a/motor_control_e3a/STM32G431KBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="motor_control_e3a.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+motor_control_e3a.elf motor_control_e3a.map: $(OBJS) $(USER_OBJS) /home/bastien/Documents/Eirbot_3A_2027/motor_control_e3a/STM32G431KBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "motor_control_e3a.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/bastien/Documents/Eirbot_3A_2027/motor_control_e3a/STM32G431KBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="motor_control_e3a.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
