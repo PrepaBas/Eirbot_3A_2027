@@ -1,0 +1,27 @@
+services:
+  ros2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ros2_container
+
+    network_mode: host
+    ipc: host
+
+    working_dir: /ros2_ws
+
+    volumes:
+      - ./src:/ros2_ws/src
+
+    environment:
+      - ROS_DOMAIN_ID=0
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+    command: >
+      bash -c "echo 'source /opt/ros/jazzy/setup.bash &&
+               source /ros2_ws/install/setup.bash' >> /root/.bashrc &&
+               exec sleep infinity"
+
+    stdin_open: true
+    tty: true

@@ -1,4 +1,4 @@
-FROM osrf/ros:lyrical-desktop-full-resolute AS builder
+FROM osrf/ros:jazzy-desktop-full AS builder
 
 WORKDIR /ros2_ws
 COPY src/ src/
