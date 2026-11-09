@@ -137,7 +137,10 @@ void MX_FREERTOS_Init(void)
 void StartLedTask(void *argument)
 {
   /* USER CODE BEGIN ledTask */
+    LOGPRINT(">x:%ld\n>y:%ld\n>theta:%ld\n>pose:%ld:%ld|xy", 0, 0, 0, 0, 0);
+  vTaskDelay(500);
   vTaskResume(motorTaskHandle);
+  vTaskDelay(1000);
   vTaskResume(led_TaskHandle);
 
   /* Infinite loop */
@@ -170,7 +173,6 @@ void StartMotorTask(void *argument)
 {
   /* USER CODE BEGIN motorTask */
   kalman_init();
-  osDelay(1000);
   // Kalman filter Initialization
   LOGPRINT("MotorTask Start");
   // IMU Initialization
@@ -197,7 +199,7 @@ void StartMotorTask(void *argument)
 
   const int uart_downsample = 40;
 
-  vTaskSuspend()
+  vTaskSuspend(NULL);
   kalman_set_state(0.0f, 0.0f, 0.0f);
   /* Infinite loop */
   for (;;)

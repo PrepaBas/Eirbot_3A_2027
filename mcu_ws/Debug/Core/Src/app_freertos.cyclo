@@ -1,7 +1,7 @@
 ../Core/Src/app_freertos.c:89:6:MX_FREERTOS_Init	1
 ../Core/Src/app_freertos.c:137:6:StartLedTask	1
-../Core/Src/app_freertos.c:165:6:StartMotorTask	8
-../Core/Src/app_freertos.c:280:6:ledTask	5
-../Core/Src/app_freertos.c:322:6:HAL_SPI_RxCpltCallback	3
-../Core/Src/app_freertos.c:334:5:__io_putchar	1
-../Core/Src/app_freertos.c:340:5:__io_getchar	1
+../Core/Src/app_freertos.c:172:6:StartMotorTask	8
+../Core/Src/app_freertos.c:285:6:ledTask	5
+../Core/Src/app_freertos.c:327:6:HAL_SPI_RxCpltCallback	3
+../Core/Src/app_freertos.c:339:5:__io_putchar	1
+../Core/Src/app_freertos.c:345:5:__io_getchar	1
