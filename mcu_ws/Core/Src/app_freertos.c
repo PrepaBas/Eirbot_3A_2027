@@ -47,6 +47,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define WAIT_CONTROLLER  while (!is_controller_free()) {osDelay(100);}
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 /* USER CODE END PD */
 
@@ -148,7 +149,7 @@ void StartLedTask(void *argument)
   {
     // while(1){osDelay(1000);}
     osDelay(200);
-    if (0) {
+    if (1) {
       float pose[3] = {};
       kalman_get_pose(pose);
       long int x = pose[0] * 1000;
@@ -246,6 +247,10 @@ void StartMotorTask(void *argument)
     {
       float dl = 2.0f * (float)encoder1_delta / 4096.0f * PI * WHEEL_RADIUS / 4.0f;
       float dr = 2.0f * (float)encoder2_delta / 4096.0f * PI * WHEEL_RADIUS / 4.0f;
+
+      // correction
+      dr *= 1.0f - LR__ENCOD_IMBALANCE;
+      dl *= 1.0f + LR__ENCOD_IMBALANCE;
       kalman_predict_w_encoders(dl, dr);
     }
     else
@@ -261,8 +266,8 @@ void StartMotorTask(void *argument)
     {
       uart_downsample_counter = 0;
 
-      int16_t vl_i16 = (int16_t)(100.0f * (v - w * 0.1475f / 2.0f) / 0.03f / 6.28f);
-      int16_t vr_i16 = (int16_t)(100.0f * (v + w * 0.1475f / 2.0f) / 0.03f / 6.28f);
+      int16_t vl_i16 = (int16_t)(100.0f * (v - w * 0.1475f / 2.0f) / 0.03f / (2.0f * PI));
+      int16_t vr_i16 = (int16_t)(100.0f * (v + w * 0.1475f / 2.0f) / 0.03f / (2.0f * PI));
       static uint8_t buf[6];
       buf[0] = 0xAA;
       buf[1] = vl_i16 & 0xFF;
@@ -285,42 +290,24 @@ void StartMotorTask(void *argument)
 void ledTask(void *argument)
 {
 	vTaskSuspend(NULL);
-  while(1) {
-  // make a square
-    while (!is_controller_free()) {
-      osDelay(100); 
-    }
+  while(1)
+  {
+    WAIT_CONTROLLER
 
-    LOGPRINT("First line");
-    float new_goal[3] = {1.8f, 0.0f, PI / 2.0f};
-    controller_start(CONTROLLER_TYPE_GOTO_P, new_goal);
+    float goal0[3] = {1.75f, 0.0f, 0.0f};
+    controller_start(CONTROLLER_TYPE_GOTO_P, goal0);
+    
+    WAIT_CONTROLLER
 
-    
-    while (!is_controller_free()) {
-      osDelay(100); 
-    }
+    float goal1[3] = {1.75f, 0.0f, PI / 2.0f};
+    controller_start(CONTROLLER_TYPE_ROT_P, goal1);
 
-    LOGPRINT("First turn");
-    float new_goal2[3] = {1.8f, 0.8f, PI};
-    controller_start(CONTROLLER_TYPE_GOTO_P, new_goal2);
-    
-    
-    while (!is_controller_free()) {
-      osDelay(100); 
-    }
+    WAIT_CONTROLLER
 
-    LOGPRINT("Second line");
-    float new_goal3[3] = {0.0f, 0.8f, -PI / 2.0f};
-    controller_start(CONTROLLER_TYPE_GOTO_P, new_goal3);
-    
-    
-    while (!is_controller_free()) {
-      osDelay(100); 
-    }
+    float goal2[3] = {0.0f, 0.0f, 0.0f};
+    controller_start(CONTROLLER_TYPE_GOTO_P, goal2);
 
-    LOGPRINT("Second turn");
-    float new_goal4[3] = {0.0f, 0.0f, 0.0f};
-    controller_start(CONTROLLER_TYPE_GOTO_P, new_goal4);
+    while(1);
   }
 }
 

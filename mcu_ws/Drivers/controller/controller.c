@@ -31,9 +31,9 @@ float old_angular_velocity = 0.0f;
 float time_step = 0.001f;
 
 // p rot controller
-float kp_rot = 1.8f;
-float max_rot_speed = 3.14f;
-float max_rot_accel = 6.28f;
+float kp_rot = 4.0f;
+float max_rot_speed = 3.14f / 5.0f;
+float max_rot_accel = 6.28f / 5.0f;
 
 // p line controller
 float kp_line = 1.5f;
@@ -43,10 +43,10 @@ float max_line_linear_accel = 1.0f;
 // p goto controller
 float kp_goto_linear = 3.5f;
 float kp_goto_angular = 4.0f;
-float max_goto_linear_speed = 1.0f;
-float max_goto_angular_speed = 3.14f;
-float max_goto_linear_accel = 2.0f;
-float max_goto_angular_accel = 6.28f;
+float max_goto_linear_speed = 0.1f;
+float max_goto_angular_speed = 3.14f / 5.0f;
+float max_goto_linear_accel = 0.2f;
+float max_goto_angular_accel = 6.28f / 5.0f;
 
 // soft stop
 float max_sstop_linear_accel = 1.5f;

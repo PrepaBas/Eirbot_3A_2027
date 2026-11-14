@@ -126,8 +126,8 @@ int kalman_predict_w_encoders(float d_l, float d_r){
     arm_mat_add_f32(&temp2_3x3, &Q, &P); 
     
 
-    X.pData[0] += d * cosf(X.pData[2]); // x
-    X.pData[1] += d * sinf(X.pData[2]); // y
+    X.pData[0] += d * cosf(X.pData[2] + w / 2.0f); // x
+    X.pData[1] += d * sinf(X.pData[2] + w / 2.0f); // y
     X.pData[2] += w;    // theta
 
     return 0;
