@@ -294,18 +294,29 @@ void ledTask(void *argument)
   {
     WAIT_CONTROLLER
 
-    float goal0[3] = {1.75f, 0.0f, 0.0f};
+    float goal0[3] = {1.0f, 0.0f, 0.0f};
     controller_start(CONTROLLER_TYPE_GOTO_P, goal0);
+    WAIT_CONTROLLER
+
+    float goal1[3] = {1.0f, 1.0f, 0.0f};
+    controller_start(CONTROLLER_TYPE_GOTO_P, goal1);
+    WAIT_CONTROLLER
+
+    float goal2[3] = {0.0f, 1.0f, 0.0f};
+    controller_start(CONTROLLER_TYPE_GOTO_P, goal2);
+    WAIT_CONTROLLER
+
+    float goal3[3] = {0.0f, 0.0f, 0.0f};
+    controller_start(CONTROLLER_TYPE_GOTO_P, goal3);
     
     WAIT_CONTROLLER
 
-    float goal1[3] = {1.75f, 0.0f, PI / 2.0f};
-    controller_start(CONTROLLER_TYPE_ROT_P, goal1);
+    float goal4[3] = {1.75f, 0.0f, 0.0f};
+    controller_start(CONTROLLER_TYPE_ROT_P, goal4);
 
     WAIT_CONTROLLER
 
-    float goal2[3] = {0.0f, 0.0f, 0.0f};
-    controller_start(CONTROLLER_TYPE_GOTO_P, goal2);
+    osDelay(3000);
 
     while(1);
   }

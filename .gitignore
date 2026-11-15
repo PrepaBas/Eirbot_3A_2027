@@ -4,6 +4,7 @@ mcu_ws/Debug/
 ros2_ws/build
 ros2_ws/install
 ros2_ws/log
+motor_control_e3a/Debug/
 
 # Prerequisites
 *.d
