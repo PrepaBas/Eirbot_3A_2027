@@ -1,9 +1,6 @@
 # Build files
 mcu_ws/build
 mcu_ws/Debug/
-ros2_ws/build
-ros2_ws/install
-ros2_ws/log
 *.cyclo
 
 # Prerequisites
@@ -62,5 +59,10 @@ dkms.conf
 # debug information files
 *.dwo
 
-
-
+# ROS2
+ros2_ws/build
+ros2_ws/install
+ros2_ws/log
+*pyc
+*pyo
+*pyd
