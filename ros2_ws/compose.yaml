@@ -12,11 +12,16 @@ services:
     working_dir: /ros2_ws
 
     volumes:
-      - ./src:/ros2_ws/src
+      - "$PWD/src:/ros2_ws/src"
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./rosbot_pro.rviz:/root/.rviz2/default.rviz
 
     environment:
       - ROS_DOMAIN_ID=0
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - DISPLAY
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
 
     command: >
       bash -c "echo 'source /opt/ros/jazzy/setup.bash &&
