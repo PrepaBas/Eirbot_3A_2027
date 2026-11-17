@@ -30,7 +30,8 @@ def generate_launch_description():
     rviz_node = Node(
             package='rviz2',
             executable='rviz2',
-            name='robot_viz'
+            name='robot_viz',
+            arguments=['-d' + os.path.join(get_package_share_directory('robot_visualization'), 'rviz', 'config.rviz')]
         )
 
     return LaunchDescription([
