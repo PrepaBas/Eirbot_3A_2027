@@ -1,8 +1,10 @@
 services:
   ros2:
+    image: ros2_jazzy_dev:latest
     build:
       context: .
       dockerfile: Dockerfile
+
 
     container_name: ros2_container
 
@@ -17,7 +19,7 @@ services:
       - ./rosbot_pro.rviz:/root/.rviz2/default.rviz
 
     environment:
-      - ROS_DOMAIN_ID=0
+      - ROS_DOMAIN_ID=12
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - DISPLAY
       - NVIDIA_VISIBLE_DEVICES=all
@@ -26,6 +28,8 @@ services:
     command: >
       bash -c "echo 'source /opt/ros/jazzy/setup.bash &&
                source /ros2_ws/install/setup.bash' >> /root/.bashrc &&
+               colcon build &&
+               source install/setup.bash &&
                exec sleep infinity"
 
     stdin_open: true
