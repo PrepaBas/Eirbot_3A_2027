@@ -26,10 +26,10 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=all
 
     command: >
-      bash -c "echo 'source /opt/ros/jazzy/setup.bash &&
-               source /ros2_ws/install/setup.bash' >> /root/.bashrc &&
-               colcon build &&
+      bash -c "source /opt/ros/jazzy/setup.bash &&
+               (colcon build || echo 'BUILD FAILED') &&
                source install/setup.bash &&
+               ros2 launch bringup bringup_launch.py &&
                exec sleep infinity"
 
     stdin_open: true
