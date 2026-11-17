@@ -50,7 +50,7 @@ class RobotStatePublisher(Node):
 
         # Joint Publisher                       # creation
         self.joint_state.header.stamp = now.to_msg()             # time in header
-        self.joint_state.name = ['left_wheel', 'right_wheel']  # list of joints
+        self.joint_state.name = ['revolute_2', 'revolute_1']  # list of joints
         self.joint_state.position = [2, 5]                     # value of joints
 
         # Odom transform Publisher
