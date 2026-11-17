@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot name="eurobot_table" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <link name="table_link">
+    <visual>
+      <origin xyz="0 0 -0.005" rpy="0 0 0"/>
+      <geometry>
+        <box size="3.0 2.0 0.01"/>
+      </geometry>
+      <material name="table_texture">
+        <texture filename="package://robot_visualization/images/eurobot_mat.png"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.005" rpy="0 0 0"/>
+      <geometry>
+        <box size="3.0 2.0 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
+</robot>

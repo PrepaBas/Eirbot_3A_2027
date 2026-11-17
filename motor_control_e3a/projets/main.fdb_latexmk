@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1791466513.87172 "/home/bastien/Documents/motor_control_e3a/motor_control_e3a/projets/main.tex" "main.pdf" "main" 1791466515.36451 0
-  "/home/bastien/Documents/motor_control_e3a/motor_control_e3a/projets/main.tex" 1791466512.18479 6433 85c2f264554f0bd49fa7092a4ec75cc9 ""
+["pdflatex"] 1794937347.79952 "/home/bastien/Documents/Eirbot_3A_2027/motor_control_e3a/projets/main.tex" "main.pdf" "main" 1794937349.63421 0
+  "/home/bastien/Documents/Eirbot_3A_2027/motor_control_e3a/projets/main.tex" 1794937346.15119 6433 85c2f264554f0bd49fa7092a4ec75cc9 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc" 1254269338 2375 baa924870cfb487815765f9094cf3728 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc" 1254269338 3031 6c4d3515bf7115d8518af1c9ab97ca44 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -215,12 +215,12 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1788966687 5609353 13863466be7e2f3222bf573e23e6e97d ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1788966749 3658235 33a1254e92ea2772672dca39946c9a63 ""
   "/usr/local/texlive/2026/texmf.cnf" 1788966682.30393 455 5b996dcaa0eb4ef14a83b026bc0a008c ""
-  "Template_Enseirb_Matmeca.sty" 1791464601.69468 1052 d71f78133c2de95adf66ea3c78247f4e ""
-  "eirbot.png" 1791464522.1988 46686 157f53721a0d1c053f9bc6e18a73ef1b ""
-  "main.aux" 1791466515.24935 721 796be71fb7ea9ab4e680acc79f4d2555 "pdflatex"
-  "main.out" 1791466515.25035 232 bb221ea96358d98a89f5f647c28d81d2 "pdflatex"
-  "main.tex" 1791466512.18479 6433 85c2f264554f0bd49fa7092a4ec75cc9 ""
-  "main.toc" 1791466515.25208 171 004b00270228c60e0bb765da72e4fe82 "pdflatex"
+  "Template_Enseirb_Matmeca.sty" 1794937346.14514 1052 d71f78133c2de95adf66ea3c78247f4e ""
+  "eirbot.png" 1794937346.148 46686 157f53721a0d1c053f9bc6e18a73ef1b ""
+  "main.aux" 1794937349.51245 721 796be71fb7ea9ab4e680acc79f4d2555 "pdflatex"
+  "main.out" 1794937349.51445 232 bb221ea96358d98a89f5f647c28d81d2 "pdflatex"
+  "main.tex" 1794937346.15119 6433 85c2f264554f0bd49fa7092a4ec75cc9 ""
+  "main.toc" 1794937349.51527 171 004b00270228c60e0bb765da72e4fe82 "pdflatex"
   (generated)
   "main.aux"
   "main.log"

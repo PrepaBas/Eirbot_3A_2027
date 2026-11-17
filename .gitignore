@@ -59,6 +59,9 @@ dkms.conf
 # debug information files
 *.dwo
 
+# STM
+motor_control_e3a/projets/
+
 # ROS2
 ros2_ws/build
 ros2_ws/install

@@ -15,6 +15,8 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*')),
         (os.path.join('share', package_name, 'urdf'), glob('urdf/*')),
         (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
+        (os.path.join('share', package_name, 'images'), glob('images/*')),
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -29,7 +31,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'robot_state_publisher = robot_visualization.robot_state_publisher:main'
+            'robot_state_publisher = robot_visualization.robot_state_publisher:main',
+            'mat_publisher = robot_visualization.image_publisher:main',
         ],
     },
 )

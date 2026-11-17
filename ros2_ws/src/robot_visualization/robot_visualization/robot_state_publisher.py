@@ -38,8 +38,8 @@ class RobotStatePublisher(Node):
         # Use of TransformBroadcaster because of tf2 complexity
         self.odom_broadcaster = TransformBroadcaster(self, 10)
         self.odom_tf = TransformStamped()
-        self.odom_tf.header.frame_id = 'odom'
-        self.odom_tf.child_frame_id = 'root'
+        self.odom_tf.header.frame_id = 'map'
+        self.odom_tf.child_frame_id = 'odom'
 
         # Create a timer of frequency 100Hz (T = 0.01 s)
         self.timer = self.create_timer(0.01, self.timer_callback)

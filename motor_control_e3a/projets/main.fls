@@ -1,8 +1,8 @@
-PWD /home/bastien/Documents/motor_control_e3a/motor_control_e3a/projets
+PWD /home/bastien/Documents/Eirbot_3A_2027/motor_control_e3a/projets
 INPUT /usr/local/texlive/2026/texmf.cnf
 INPUT /usr/local/texlive/2026/texmf-dist/web2c/texmf.cnf
 INPUT /usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /home/bastien/Documents/motor_control_e3a/motor_control_e3a/projets/main.tex
+INPUT /home/bastien/Documents/Eirbot_3A_2027/motor_control_e3a/projets/main.tex
 OUTPUT main.log
 INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/base/article.cls
 INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/base/article.cls
